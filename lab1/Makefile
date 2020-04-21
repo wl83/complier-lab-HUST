@@ -1,3 +1,3 @@
-result: scanner.l
-	flex scanner.l
+result: grammarTree.l
+	flex grammarTree.l
 	gcc lex.yy.c -o parser

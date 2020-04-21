@@ -145,10 +145,14 @@ PRINTFUNC Print
 }
 
 
-{INT_DEX} |
-{INT_HEX} |
-{INT_OCT} {
+{INT_DEX} {
     printf("(%s, CONSTANTINTEGER)\n", yytext);
+}
+{INT_HEX} {
+    printf("(%s, CONSTANTINTH)\n", yytext);
+}
+{INT_OCT} {
+    printf("(%s, CONSTANTINTO)\n", yytext);
 }
 
 

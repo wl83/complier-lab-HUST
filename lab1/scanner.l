@@ -47,13 +47,13 @@ CONTINUE continue
 FOR for
 SWITCH switch
 CASE case
+NULL null
 EXTENDS extends
 NEW new
 THIS this
 STATIC static
 TRUE true
 FALSE false
-NULL null | NULL
 RETURN return
 LINECOM [/][/][^\n]*
 LEFTBLOCKCOM [/][*]
@@ -67,6 +67,7 @@ SPLEFTBRACKER [{]
 SPRIGHTBRACKER [}]
 SPLEFTPRNT [(]
 SPRIGHTPRNT [)]
+PRINTFUNC Print
 
 %%
 
@@ -92,8 +93,6 @@ SPRIGHTPRNT [)]
     printf("(%s, TYPESTRING)\n", yytext);
 } 
 
-
-
 {IF} |
 {ELSE} |
 {WHILE} |
@@ -102,22 +101,24 @@ SPRIGHTPRNT [)]
 {FOR} |
 {SWITCH} |
 {CASE} |
+{NULL} |
 {EXTENDS} |
 {NEW} |
-{NULL} |
-{RETURN} |
 {THIS} |
 {STATIC} |
 {TRUE} |
-{FALSE} {
+{FALSE} |
+{RETURN} {
    printf("(%s, KEYWORD)\n", yytext);
 }
 
+{PRINTFUNC} {
+    printf("(%s, PRINTFUNCTION)\n", yytext);
+}
 
 {IDENTIFIER} {
     printf("(%s, IDENTIFIER)\n", yytext);
 }
-
 
 {PLUSSELF} {
     printf("(++, PLUSSELFOPERATOR)\n");

@@ -1,6 +1,8 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include "grammar.h"
+    #include "grammar.tab.h"
 %}
 
 INT_DEX [-+]?[1-9][0-9]*|[0]
@@ -63,112 +65,68 @@ SPACE [ ]
 EOL [\n]
 TAB [\t]
 DOT [.]
-SPLEFTBRACKER [{]
-SPRIGHTBRACKER [}]
-SPLEFTPRNT [(]
-SPRIGHTPRNT [)]
+LC [{]
+RC [}]
+LP[(]
+RP [)]
+LB [\[]
+RB [\]]
 PRINTFUNC Print
 
 %%
 
-{TYPEINT} {
-    printf("(%s, TYPEINT)\n", yytext);
-}
-{TYPEFLOAT} {
-    printf("(%s, TYPEFLOAT)\n", yytext);
-}
-{TYPECHAR} {
-    printf("(%s, TYPECHAR)\n", yytext);
-}
-{TYPEVOID} {
-    printf("(%s, TYPEVOID)\n", yytext);
-}
-{TYPEBOOL} {
-    printf("(%s, TYPEBOOL)\n", yytext);
-}
-{TYPECLASS} {
-    printf("(%s, TYPECLASS)\n", yytext);
-}
-{TYPESTRING} {
-    printf("(%s, TYPESTRING)\n", yytext);
-} 
+{TYPEINT} {printf("(%s, TYPEINT)\n", yytext);return TYPE;}
+{TYPEFLOAT} {printf("(%s, TYPEFLOAT)\n", yytext);return TYPE;}
+{TYPECHAR} {printf("(%s, TYPECHAR)\n", yytext);return TYPE;}
+{TYPEVOID} {printf("(%s, TYPEVOID)\n", yytext);return TYPE;}
+{TYPEBOOL} {printf("(%s, TYPEBOOL)\n", yytext);return TYPE;}
+{TYPECLASS} {printf("(%s, TYPECLASS)\n", yytext);return TYPE;}
+{TYPESTRING} {printf("(%s, TYPESTRING)\n", yytext);return TYPE;} 
 
-{IF} |
-{ELSE} |
-{WHILE} |
-{BREAK} |
-{CONTINUE} |
-{FOR} |
-{SWITCH} |
-{CASE} |
-{NULL} |
-{EXTENDS} |
-{NEW} |
-{THIS} |
-{STATIC} |
-{TRUE} |
-{FALSE} |
-{RETURN} {
-   printf("(%s, KEYWORD)\n", yytext);
-}
+{IF} {printf("(%s, IF)\n", yytext); return IF};
+{ELSE} {printf("(%s, ELSE)\n", yytext); return ELSE};
+{WHILE} {printf("(%s, WHILE)\n", yytext); return WHILE};
+{BREAK} {printf("(%s, BREAK)\n", yytext); return BREAK};
+{CONTINUE} {printf("(%s, CONTINUE)\n", yytext); return CONTINUE};
+{FOR} {printf("(%s, FOR)\n", yytext); return FOR};
+{SWITCH} {printf("(%s, SWITCH)\n", yytext); return SWITCH};
+{CASE} {printf("(%s, CASE)\n", yytext); return CASE};
+{NULL} {printf("(%s, NULL)\n", yytext); return NULL};
+{EXTENDS} {printf("(%s, EXTENDS)\n", yytext); return EXTENDS};
+{NEW} {printf("(%s, NEW)\n", yytext); return NEW};
+{THIS} {printf("(%s, THIS)\n", yytext); return THIS};
+{STATIC} {printf("(%s, STATIC)\n", yytext); return STATIC};
+{TRUE} {printf("(%s, IF)\n", yytext); return IF};
+{FALSE} {printf("(%s, FALSE)\n", yytext); return FALSE};
+{RETURN} {printf("(%s, RETURN)\n", yytext);return RETURN;}
 
-{PRINTFUNC} {
-    printf("(%s, PRINTFUNCTION)\n", yytext);
-}
+{PRINTFUNC} {printf("(%s, PRINTFUNCTION)\n", yytext);return PRINTFUNC;}
 
-{IDENTIFIER} {
-    printf("(%s, IDENTIFIER)\n", yytext);
-}
+{IDENTIFIER} {printf("(%s, IDENTIFIER)\n", yytext);return IDENTIFIER;}
 
-{PLUSSELF} {
-    printf("(++, PLUSSELFOPERATOR)\n");
-}
-{MINUSSELF} {
-    printf("(--, MINUSSELFOPERATOR)\n");
-}
+{PLUSSELF} {printf("(++, PLUSSELFOPERATOR)\n");return PLUSSELF;}
+{MINUSSELF} {printf("(--, MINUSSELFOPERATOR)\n");return MINUSSELF;}
 
 
-{PLUS} {
-    printf("(%s, PLUSOPERATOR)\n", yytext);
-}
-{MINUS} {
-    printf("(%s, MINUSOPERATOR)\n", yytext);
-}
-{STAR} {
-    printf("(%s, STAROPERATOR)\n", yytext);
-}
-{DIV} {
-    printf("(%s, DIVOPERATOR)\n", yytext);
-}
-{MOD} {
-    printf("(%s, MODOPERATOR)\n", yytext);
-}
+{PLUS} {printf("(%s, PLUSOPERATOR)\n", yytext);return PLUS;}
+{MINUS} {printf("(%s, MINUSOPERATOR)\n", yytext);return MINUS;}
+{STAR} {printf("(%s, STAROPERATOR)\n", yytext);return STAR;}
+{DIV} {printf("(%s, DIVOPERATOR)\n", yytext);return DIV;}
+{MOD} {printf("(%s, MODOPERATOR)\n", yytext);return MOD;}
 
 
-{INT_DEX} {
-    printf("(%s, CONSTANTINTEGER)\n", yytext);
-}
-{INT_HEX} {
-    printf("(%s, CONSTANTINTH)\n", yytext);
-}
-{INT_OCT} {
-    printf("(%s, CONSTANTINTO)\n", yytext);
-}
+{INT_DEX} {printf("(%s, CONSTANTINTEGER)\n", yytext);return CONSTANTINT;}
+{INT_HEX} {printf("(%s, CONSTANTINTH)\n", yytext);return CONSTANTINT;}
+{INT_OCT} {printf("(%s, CONSTANTINTO)\n", yytext);return CONSTANTINT;}
 
 
-{FLOAT} {
-    printf("(%s, CONSTANTFLOAT)\n", yytext);
-}
+{FLOAT} {printf("(%s, CONSTANTFLOAT)\n", yytext);return CONSTANTFLOAT;}
 
 
-{CHAR} {
-    printf("(%s, CHAR)\n", yytext);
-}
+{CHAR} {printf("(%s, CHAR)\n", yytext);return CONSTANTCHAR;}
 
 
-{STRING} {
-    printf("(%s, STRING)\n", yytext);
-}
+{STRING} {printf("(%s, STRING)\n", yytext);return STRING;}
 
 
 {LTHAN} |
@@ -178,78 +136,47 @@ PRINTFUNC Print
 {RETHAN} |
 {NOTEQUAL} {
     printf("(%s, OPCOMPARE)\n", yytext);
+    return RELOP;
 }
 
 
-{AND} |
-{OR} |
-{NOT} {
-    printf("(%s, LOGICOPERATOR)\n", yytext);
-}
+{AND} {printf("(%s, ANDOPERATOR)\n", yytext);return ANDOPERATOR;}
+{OR} {printf("(%s, OROPERATOR)\n", yytext);return OROPERATOR;}
+{NOT} {printf("(%s, NOTOPERATOR)\n", yytext);return NOTOPERATOR;}
 
 
-{ASSIGNOP} |
-{PLUSASSIGN} |
-{MINUSASSIGN} |
-{STARASSIGN} |
-{DIVASSIGN} {
-    printf("(%s, OPASSIGN)\n", yytext);
-}
+{ASSIGNOP} {printf("(%s, ASSIGNOPERATOR)\n", yytext);return ASSIGNOP}
+{PLUSASSIGN} {printf("(%s, PLUSASSIGNOPERATOR)\n", yytext);return PLUSASSIGNOP}
+{MINUSASSIGN} {printf("(%s, MINUSASSIGNOPERATOR)\n", yytext);return MINUSASSIGNOP}
+{STARASSIGN} {printf("(%s, STARASSIGNOPERATOR)\n", yytext);return STARASSIGNOP}
+{DIVASSIGN} {printf("(%s, DIVASSIGNOPERATOR)\n", yytext);return DIVASSIGNOP;}
 
 
-{SPSEMICOLON} {
-    printf("(%s, SPSEMICOLON)\n", yytext);
-}
+{SPSEMICOLON} {printf("(%s, SPSEMICOLON)\n", yytext);return SEMI;}
+{SPCOMMA} {printf("(%s, SPCOMMA)\n", yytext);return COMMA;}
+{DOT} {printf("(%s, DOT)\n", yytext);return DOT;}
 
 
-{SPCOMMA} {
-    printf("(%s, SPCOMMA)\n", yytext);
-}
-
-
-{DOT} {
-    printf("(%s, DOT)\n", yytext);
-}
-
-
-{SPLEFTBRACKER} {
-    printf("(%s, SPLEFTBRACKER)\n", yytext);
-}
-
-
-{SPRIGHTBRACKER} {
-    printf("(%s, SPRIGHTBRACKER)\n", yytext);
-}
-
-
-{SPLEFTPRNT} {
-    printf("(%s, SPLEFTPRNT)\n", yytext);
-}
-
-
-{SPRIGHTPRNT} {
-    printf("(%s, SPRIGHTPRNT)\n", yytext);
-}
+{LC} {printf("(%s, SPLEFTBRACKER)\n", yytext);return LC;}
+{RC} {printf("(%s, SPRIGHTBRACKER)\n", yytext);return RC;}
+{LP} {printf("(%s, SPLEFTPRNT)\n", yytext);return LP;}
+{RP} {printf("(%s, SPRIGHTPRNT)\n", yytext);return RP;}
 
 {LINECOM} {
     printf("(%s, COMMENT)\n", yytext);
+    return LINECOM;
 }
 
 
 {LEFTBLOCKCOM} |
 {RIGHTBLOCKCOM} {
     printf("(%s, COMMNET)\n", yytext);
+    return COMMENT;
 }
 
+{SPACE} {}
 
-{SPACE} {
-
-}
-
-
-{EOL} {
-    printf("(\\n, EOL)\n");
-}
+{EOL} {printf("(\\n, EOL)\n");return EOL;}
 
 %%
 

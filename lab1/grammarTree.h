@@ -7,21 +7,21 @@ extern char *yytext;
 void yyerror(char *s, ...);
 
 // 抽象语法树
-typedef struct AST{
+typedef struct node{
     int line;
     char *name;
     int level;
-    AST *left;
-    AST *right;
+    int kind;
+    node *ptr[3];
     union{ // 存放ID/INT/FLOAT/CHAR的值
         char *identifier;
-        int integer;
-        float flt;
+        int constant_int;
+        float constant_float;
     };
-}AST;
+}node;
 
 // 构造抽象语法树，变长参数，name:语法单元名称，num:变长参数中语法节点的个数
-AST *mknode(char *name, int num, ...);
+node *mknode(int kind, node *node1, node *node2, node *node3, int pos);
 
 // 遍历抽象语法树, level:语法树的层次
-void eval(AST *ast, int level);
+void eval(node *node, int level);

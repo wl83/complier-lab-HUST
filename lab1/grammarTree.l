@@ -1,8 +1,17 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include "grammar.h"
-    #include "grammar.tab.h"
+    #include <string.h>
+    #include "grammarTree.h"
+    #include "grammarTree.tab.h"
+    typedef union{
+        int type_int;
+        float type_float;
+        char type_char;
+        char *type_id;
+        char *type_string;
+        node *ptr;
+    }
 %}
 
 INT_DEX [-+]?[1-9][0-9]*|[0]
@@ -75,13 +84,13 @@ PRINTFUNC Print
 
 %%
 
-{TYPEINT} {printf("(%s, TYPEINT)\n", yytext);return TYPE;}
-{TYPEFLOAT} {printf("(%s, TYPEFLOAT)\n", yytext);return TYPE;}
-{TYPECHAR} {printf("(%s, TYPECHAR)\n", yytext);return TYPE;}
-{TYPEVOID} {printf("(%s, TYPEVOID)\n", yytext);return TYPE;}
-{TYPEBOOL} {printf("(%s, TYPEBOOL)\n", yytext);return TYPE;}
-{TYPECLASS} {printf("(%s, TYPECLASS)\n", yytext);return TYPE;}
-{TYPESTRING} {printf("(%s, TYPESTRING)\n", yytext);return TYPE;} 
+{TYPEINT} {printf("(%s, TYPEINT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+{TYPEFLOAT} {printf("(%s, TYPEFLOAT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+{TYPECHAR} {printf("(%s, TYPECHAR)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+{TYPEVOID} {printf("(%s, TYPEVOID)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+{TYPEBOOL} {printf("(%s, TYPEBOOL)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+{TYPECLASS} {printf("(%s, TYPECLASS)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+{TYPESTRING} {printf("(%s, TYPESTRING)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;} 
 
 {IF} {printf("(%s, IF)\n", yytext); return IF};
 {ELSE} {printf("(%s, ELSE)\n", yytext); return ELSE};
@@ -96,13 +105,13 @@ PRINTFUNC Print
 {NEW} {printf("(%s, NEW)\n", yytext); return NEW};
 {THIS} {printf("(%s, THIS)\n", yytext); return THIS};
 {STATIC} {printf("(%s, STATIC)\n", yytext); return STATIC};
-{TRUE} {printf("(%s, IF)\n", yytext); return IF};
+{TRUE} {printf("(%s, TRUE)\n", yytext); return TRUE};
 {FALSE} {printf("(%s, FALSE)\n", yytext); return FALSE};
 {RETURN} {printf("(%s, RETURN)\n", yytext);return RETURN;}
 
 {PRINTFUNC} {printf("(%s, PRINTFUNCTION)\n", yytext);return PRINTFUNC;}
 
-{IDENTIFIER} {printf("(%s, IDENTIFIER)\n", yytext);return IDENTIFIER;}
+{IDENTIFIER} {printf("(%s, IDENTIFIER)\n", yytext);strcpy(yylval.type_id, yytext);return ID;}
 
 {PLUSSELF} {printf("(++, PLUSSELFOPERATOR)\n");return PLUSSELF;}
 {MINUSSELF} {printf("(--, MINUSSELFOPERATOR)\n");return MINUSSELF;}
@@ -115,18 +124,18 @@ PRINTFUNC Print
 {MOD} {printf("(%s, MODOPERATOR)\n", yytext);return MOD;}
 
 
-{INT_DEX} {printf("(%s, CONSTANTINTEGER)\n", yytext);return CONSTANTINT;}
-{INT_HEX} {printf("(%s, CONSTANTINTH)\n", yytext);return CONSTANTINT;}
-{INT_OCT} {printf("(%s, CONSTANTINTO)\n", yytext);return CONSTANTINT;}
+{INT_DEX} {printf("(%s, CONSTANTINTEGER)\n", yytext);yylval.type_int = atoi(yytext);return INT;}
+{INT_HEX} {printf("(%s, CONSTANTINTH)\n", yytext);yylval.type_int = atoi(yytext);return INT;}
+{INT_OCT} {printf("(%s, CONSTANTINTO)\n", yytext);yylval.type_int = atoi(yytext);return INT;}
 
 
-{FLOAT} {printf("(%s, CONSTANTFLOAT)\n", yytext);return CONSTANTFLOAT;}
+{FLOAT} {printf("(%s, CONSTANTFLOAT)\n", yytext);yylval.type_float = atof(yytext);return FLOAT;}
 
 
-{CHAR} {printf("(%s, CHAR)\n", yytext);return CONSTANTCHAR;}
+{CHAR} {printf("(%s, CHAR)\n", yytext);yylval.type_char = yytext[0];return CONSTANTCHAR;}
 
 
-{STRING} {printf("(%s, STRING)\n", yytext);return STRING;}
+{STRING} {printf("(%s, STRING)\n", yytext);yylval.type_string = yytext;return STRING;}
 
 
 {LTHAN} |
@@ -140,9 +149,9 @@ PRINTFUNC Print
 }
 
 
-{AND} {printf("(%s, ANDOPERATOR)\n", yytext);return ANDOPERATOR;}
-{OR} {printf("(%s, OROPERATOR)\n", yytext);return OROPERATOR;}
-{NOT} {printf("(%s, NOTOPERATOR)\n", yytext);return NOTOPERATOR;}
+{AND} {printf("(%s, ANDOPERATOR)\n", yytext);return AND;}
+{OR} {printf("(%s, OROPERATOR)\n", yytext);return OR;}
+{NOT} {printf("(%s, NOTOPERATOR)\n", yytext);return NOT;}
 
 
 {ASSIGNOP} {printf("(%s, ASSIGNOPERATOR)\n", yytext);return ASSIGNOP}

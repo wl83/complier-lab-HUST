@@ -1,18 +1,23 @@
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include "grammarTree.h"
-    #include "grammarTree.tab.h"
-    typedef union{
-        int type_int;
-        float type_float;
-        char type_char;
-        char *type_id;
-        char *type_string;
-        node *ptr;
-    }
+#include "parser.tab.h"
+#include "string.h"
+#include "stdio.h"
+#include "def.h"
+int yycolumn=1;
+#define YY_USER_ACTION    	yylloc.first_line=yylloc.last_line=yylineno; \
+	yylloc.first_column=yycolumn;	yylloc.last_column=yycolumn+yyleng-1; yycolumn+=yyleng;
+typedef union {
+	int type_int;
+    int type_bool;
+	float type_float;
+	char type_char;
+	char type_id[32];
+	struct node *ptr;
+} YYLVAL;
+#define YYSTYPE YYLVAL
+
 %}
+/* yylineno 记录行号 */
 %option yylineno
 
 INT_DEX [-+]?[1-9][0-9]*|[0]
@@ -33,6 +38,7 @@ IF if
 ELSE else
 BREAK break
 WHILE while
+CONTINUE continue
 FOR for
 THIS this
 NEW new
@@ -40,6 +46,8 @@ NULL null
 EXTENDS extends
 RETURN return
 STATIC static
+TRUE true
+FALSE false
 LC [{]
 RC [}]
 LB [[]
@@ -68,6 +76,8 @@ OR [|][|]
 NOT [!]
 EOL [\n]
 SPACE [ \t\r]*
+LINECOM "//"[^\n]*
+BLOCKCOM "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 
 %%
 {INT_DEX} {
@@ -102,48 +112,54 @@ SPACE [ \t\r]*
 
 {ID} {
     printf("(%s, IDENTIFIER)\n", yytext);
-    yylval.type_id = ID;
+    strcpy(yylval.type_id, ID);
     return ID;
 }
 
 {STRING} {
     printf("(%s, CONSTANTSTRING)\n", yytext);
-    yylval.type_string = yytext;
     return STRING;
 }
 
 {TYPEINT} {
     printf("(%s, TYPEINT)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
 {TYPEFLOAT} {
     printf("(%s, TYPEFLOAT)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
 {TYPECHAR} {
     printf("(%s, TYPECHAR)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
 {TYPESTRING} {
     printf("(%s, TYPESTRING)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
 {TYPECLASS} {
     printf("(%s, TYPECLASS)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
 {TYPEVOID} {
     printf("(%s, TYPEVOID)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
 {TYPEBOOL} {
     printf("(%s, TYPEBOOL)\n", yytext);
+    strcpy(yylval.type_id, yytext);
     return TYPE;
 }
 
@@ -165,6 +181,11 @@ SPACE [ \t\r]*
 {WHILE} {
     printf("(%s, WHILE)\n", yytext);
     return WHILE;
+}
+
+{CONTINUE} {
+    printf("(%s, CONTINUE)\n", yytext);
+    return CONTINUE;
 }
 
 {FOR} {
@@ -200,6 +221,16 @@ SPACE [ \t\r]*
 {STATIC} {
     printf("(%s, STATIC)\n", yytext);
     return STATIC;
+}
+
+{TRUE} {
+    printf("(%s, TRUE)\n", yytext);
+    return TRUE;
+}
+
+{FALSE} {
+    printf("(%s, FALSE)\n", yytext);
+    return FALSE;
 }
 
 {LC} {
@@ -336,7 +367,8 @@ SPACE [ \t\r]*
     printf("(\\n, EOL)\n");
     return EOL;
 }
-
+{LINECOM} {printf("(%s, LINECOM)\n", yytext);}
+{BLOCKCOM} {printf("(%s, BLOCKCOM)\n", yytext);}
 {SPACE} {}
 
 %%

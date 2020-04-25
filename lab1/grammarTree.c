@@ -1,15 +1,21 @@
 #include "grammarTree.h"
 
-node *mknode(int kind, node *node1, node *node2, node *node3, int line){
+node *mknode(int num, int kind, int pos, ...){
     node *temp = (node *)malloc(sizeof(node));
     temp->kind = kind;
-    temp->ptr[0] = node1;
-    temp->ptr[1] = node2;
-    temp->ptr[2] = node3;
-    temp->line = line;
+    temp->line = pos;
+    va_list pArgs;
+    va_start(pArgs, pos);
+    int i;
+    for(i = 0; i < num; i++){
+        temp->ptr[i] = va_arg(pArgs, node *);
+    }
+    while(i < 4) 
+        temp->ptr[i++] = NULL;
+    va_end(pArgs);
     return temp;
 }
 
-void eval(node *node, int level){
+void display(node *node, int level){
 
 }

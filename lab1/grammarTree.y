@@ -5,7 +5,7 @@
     #include <stdio.h>
     #include <string.h>
     #include <math.h>
-    #include <grammarTree.h>
+    #include "grammarTree.h"
     extern int yylineno;
     extern char *yytext;
     extern FILE *yyin;
@@ -81,17 +81,24 @@ ExtDefList : ExtDef ExtDefList {$$ = mknode(2, EXT_DEF_LIST, yylineno, $1, $2);}
 //           类型声明 函数声明 分号 |
 //           错误
 ExtDef : Specifier ExtDecList SEMI {$$ = mknode(2, EXT_VAR_DEF, yylineno, $1, $2);} |
-         Specifier FuncDec SEMI {$$ = mknode(2, FUNC_DEF, yylineno, $1, $2);}
+         Specifier FuncDec CompSt {$$ = mknode(3, FUNC_DEF, yylineno, $1, $2, $3);} |
+         error SEMI {$$ = NULL;}
     ;
 
 // 类型声明 ：类型
-Specifier : TYPE {$$ = mknode(0, TYPE, yylineno);strcpy($$->type_id, $1);$$->type = (!strcmp($1, "int") ? INT : (!strcmp($1, "float") ? FLOAT : CHAR;));}
+Specifier : TYPE {$$ = mknode(0, TYPE, yylineno);strcpy($$->type_id, $1);$$->type = (!strcmp($1, "int") ? INT : (!strcmp($1, "float") ? FLOAT : CHAR));}
     ;
 
 // 外部声明列表 ： 变量声明 |
 //              变量声明 逗号 外部声明列表
 ExtDecList : VarDec {$$ = $1;}|
              VarDec COMMA ExtDecList {$$ = mknode(2, EXT_DEC_LIST, yylineno, $1, $3);}
+    ;
+
+// 变量声明 ： 标识符|
+//           标识符 数组声明
+VarDec : ID {$$ = mknode(0, ID, yylineno); strcpy($$->type_id, $1);}|
+         ID ArrayDec {$$ = mknode(1, ARRAY_DEC, yylineno, $2); strcpy($$->type_id, $1);}
     ;
 
 // 数组声明 ： 标识符 左中括号 表达式 右中括号 |
@@ -106,12 +113,6 @@ ArrayDec : LB Exp RB {$$ = $2}|
 //           错误
 FuncDec : ID LP VarList RP {$$ = mknode(1, FUNC_DEC, yylineno, $3);strcpy($$->type_id, $1);}|
           ID LP RP {$$ = mknode(0, FUNC_DEC, yylineno); strcpy($$->type_id, $1);$$->ptr[0]=NULL;}
-    ;
-
-// 变量声明 ： 标识符|
-//           标识符 数组声明
-VarDec : ID {$$ = mknode(0, ID, yylineno); strcpy($$->type_id, $1);}|
-         ID ArrayDec {$$ = mknode(1, ARRAY_DEC, yylineno, $2); strcpy($$->type_id, $1);}
     ;
 
 // 变量列表 ： 参数声明 | 
@@ -156,12 +157,13 @@ Stmt : Exp SEMI {$$ = mknode(1, EXP_STMT, yylineno, $1);}|
 // 定义列表 ： 定义 定义列表 |
 //           空
 DefList: Def DefList {$$ = mknode(2, DEF_LIST, yylineno, $1, $2);}|
-          {$$ = NULL;}
+          {$$ = NULL;} |
+         error SEMI
+    ;
 
 // 定义 ： 类型声明 声明列表 分号 |
 //        类型声明 数组声明 分号
-Def: Specifier DecList SEMI {$$ = mknode(2, VAR_DEF, yylineno, $1, $2);}|
-      Specifier ArrayDec SEMI {$$ = mknode(2, ARRAY_DEF, yylineno, $1, $2);}
+Def: Specifier DecList SEMI {$$ = mknode(2, VAR_DEF, yylineno, $1, $2);}
     ;
 
 // DecList
@@ -240,7 +242,7 @@ Args : Exp COMMA Args {$$ = mknode(2, ARGS, yylineno, $1, $3);}|
     ;
 
 %%
-int main(int args, int *argv[]){
+int main(int args, char *argv[]){
     yyin = fopen(argv[1], "r");
     if(!yyin) 
         return 0;

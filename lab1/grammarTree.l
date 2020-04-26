@@ -1,8 +1,8 @@
 %{
-#include "parser.tab.h"
+#include "grammarTree.tab.h"
 #include "string.h"
 #include "stdio.h"
-#include "def.h"
+#include "grammarTree.h"
 int yycolumn=1;
 #define YY_USER_ACTION    	yylloc.first_line=yylloc.last_line=yylineno; \
 	yylloc.first_column=yycolumn;	yylloc.last_column=yycolumn+yyleng-1; yycolumn+=yyleng;
@@ -117,7 +117,6 @@ BLOCKCOM "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 
 {STRING} {
     printf("(%s, CONSTANTSTRING)\n", yytext);
-    return STRING;
 }
 
 {TYPEINT} {
@@ -224,12 +223,10 @@ BLOCKCOM "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 
 {TRUE} {
     printf("(%s, TRUE)\n", yytext);
-    return TRUE;
 }
 
 {FALSE} {
     printf("(%s, FALSE)\n", yytext);
-    return FALSE;
 }
 
 {LC} {
@@ -299,7 +296,6 @@ BLOCKCOM "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 
 {DOT} {
     printf("(%s, DOT)\n", yytext);
-    return DOT;
 }
 
 {COMMA} {
@@ -364,7 +360,6 @@ BLOCKCOM "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 
 {EOL} {
     printf("(\\n, EOL)\n");
-    return EOL;
 }
 {LINECOM} {printf("(%s, LINECOM)\n", yytext);}
 {BLOCKCOM} {printf("(%s, BLOCKCOM)\n", yytext);}

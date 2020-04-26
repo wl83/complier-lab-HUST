@@ -75,16 +75,13 @@
      BREAK = 291,
      CONTINUE = 292,
      FOR = 293,
-     NULL = 294,
-     EXTENDS = 295,
-     NEW = 296,
-     THIS = 297,
-     STATIC = 298,
-     TRUE = 299,
-     FALSE = 300,
-     RETURN = 301,
-     UMINUS = 302,
-     LOWER_THEN_ELSE = 303
+     EXTENDS = 294,
+     NEW = 295,
+     THIS = 296,
+     STATIC = 297,
+     RETURN = 298,
+     UMINUS = 299,
+     LOWER_THEN_ELSE = 300
    };
 #endif
 /* Tokens.  */
@@ -124,16 +121,13 @@
 #define BREAK 291
 #define CONTINUE 292
 #define FOR 293
-#define NULL 294
-#define EXTENDS 295
-#define NEW 296
-#define THIS 297
-#define STATIC 298
-#define TRUE 299
-#define FALSE 300
-#define RETURN 301
-#define UMINUS 302
-#define LOWER_THEN_ELSE 303
+#define EXTENDS 294
+#define NEW 295
+#define THIS 296
+#define STATIC 297
+#define RETURN 298
+#define UMINUS 299
+#define LOWER_THEN_ELSE 300
 
 
 
@@ -143,14 +137,13 @@ typedef union YYSTYPE
 #line 16 "grammarTree.y"
 {
     int type_int;
-    int type_bool;
     float type_float;
     char type_char;
     char type_id[32];
     struct node *ptr;
 }
 /* Line 1529 of yacc.c.  */
-#line 154 "grammarTree.tab.h"
+#line 147 "grammarTree.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

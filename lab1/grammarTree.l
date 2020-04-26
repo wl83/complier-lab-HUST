@@ -8,7 +8,6 @@ int yycolumn=1;
 	yylloc.first_column=yycolumn;	yylloc.last_column=yycolumn+yyleng-1; yycolumn+=yyleng;
 typedef union {
 	int type_int;
-    int type_bool;
 	float type_float;
 	char type_char;
 	char type_id[32];

@@ -15,7 +15,6 @@
 
 %union{
     int type_int;
-    int type_bool;
     float type_float;
     char type_char;
     char type_id[32];
@@ -51,7 +50,7 @@
 %token <type_float> FLOAT
 %token <type_id> ID TYPE RELOP
 %token LC RC LB RB LP RP SEMI COMMA
-%token PLUS MINUS STAR DIV MOD AND OR NOT AUTOPLUS AUTOMINUS ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP IF ELSE WHILE BREAK CONTINUE FOR NULL EXTENDS NEW THIS STATIC TRUE FALSE RETURN
+%token PLUS MINUS STAR DIV MOD AND OR NOT AUTOPLUS AUTOMINUS ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP IF ELSE WHILE BREAK CONTINUE FOR EXTENDS NEW THIS STATIC RETURN
 
 // 优先级
 %left PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP
@@ -82,12 +81,11 @@ ExtDefList : ExtDef ExtDefList {$$ = mknode(2, EXT_DEF_LIST, yylineno, $1, $2);}
 //           类型声明 函数声明 分号 |
 //           错误
 ExtDef : Specifier ExtDecList SEMI {$$ = mknode(2, EXT_VAR_DEF, yylineno, $1, $2);} |
-         Specifier ArrayDec SEMI {$$ = mknode(2, ARRAY_DEF, yylineno, $1, $2);}|
-         Specifier FuncDec SEMI {$$ = mknode(2, FuncDec, yylineno, $1, $2);}
+         Specifier FuncDec SEMI {$$ = mknode(2, FUNC_DEF, yylineno, $1, $2);}
     ;
 
 // 类型声明 ：类型
-Specifier : TYPE {$$ = mknode(0, TYPE, yylineno);strcpy($$->type_id, $1);$$->type = (!strcmp($1, "int") ? INT : (!strcmp($1, "float") ? FLOAT : (!strcmp($1, "char") ? CHAR : (!strcmp($1, "void") ? VOID : BOOL))));}
+Specifier : TYPE {$$ = mknode(0, TYPE, yylineno);strcpy($$->type_id, $1);$$->type = (!strcmp($1, "int") ? INT : (!strcmp($1, "float") ? FLOAT : CHAR;));}
     ;
 
 // 外部声明列表 ： 变量声明 |
@@ -149,9 +147,9 @@ Stmt : Exp SEMI {$$ = mknode(1, EXP_STMT, yylineno, $1);}|
        RETURN Exp SEMI {$$ = mknode(1, RETURN, yylineno, $2);}|
        IF LP Exp RP Stmt %prec LOWER_THEN_ELSE {$$ = mknode(2, IF_THEN, yylineno, $3, $5);}|
        IF LP Exp RP Stmt ELSE Stmt {$$ = mknode(3, IF_THEN_ELSE, yylineno, $3, $5, $7);}|
-       WHILE LP Exp RP Stmt {$$ = mknode($2, WHILE, yylineno, $3, $5);}|
+       WHILE LP Exp RP Stmt {$$ = mknode(2, WHILE, yylineno, $3, $5);}|
        FOR LP Exp SEMI Exp SEMI Exp RP Stmt {$$ = mknode(4, FOR, yylineno, $3, $5, $7, $9);} |
-       CONTINUE SEMI {$$ = mknode(0, CONTINUE, yylineno);}
+       CONTINUE SEMI {$$ = mknode(0, CONTINUE, yylineno);} |
        BREAK SEMI {$$ = mknode(0, BREAK, yylineno);}
     ;
 
@@ -207,8 +205,8 @@ Dec : VarDec {$$ = $1;} |
 Exp : INT {$$ = mknode(0, INT, yylineno); $$->type = INT; $$->type_int = $1;}|
       FLOAT {$$ = mknode(0, FLOAT, yylineno); $$->type = FLOAT; $$->type_float = $1;}|
       CHAR {$$ = mknode(0, CHAR, yylineno); $$->type = CHAR; $$->type_char = $1;}|
-      TRUE {$$ = mknode(0, BOOL, yylineno); $$->type = BOOL; $$->type_bool = 1;}|
-      FALSE {$$ = mknode(0, BOOL, yylineno); $$->type = BOOL; $$->type_bool = 0;}|
+    //   TRUE {$$ = mknode(0, BOOL, yylineno); $$->type = BOOL; $$->type_bool = 1;}|
+    //   FALSE {$$ = mknode(0, BOOL, yylineno); $$->type = BOOL; $$->type_bool = 0;}|
       Exp PLUS Exp {$$ = mknode(2, PLUS, yylineno, $1, $3); strcpy($$->type_id, "PLUS");}|
       Exp MINUS Exp {$$ = mknode(2, MINUS, yylineno, $1, $3); strcpy($$->type_id, "MINUS");}|
       Exp STAR Exp {$$ = mknode(2, STAR, yylineno, $1, $3); strcpy($$->type_id, "STAR");}|
@@ -230,9 +228,9 @@ Exp : INT {$$ = mknode(0, INT, yylineno); $$->type = INT; $$->type_int = $1;}|
       NOT Exp {$$ = mknode(1, NOT, yylineno, $2); strcpy($$->type_id, "NOT");}|
       LP Exp RP {$$ = $2;}|
       MINUS Exp %prec UMINUS {$$ = mknode(1, UMINUS, yylineno, $2); strcpy($$->type_id, "UMINUS");}|
-      ID {$$ = mknode(0, ID, yylineno);} strcpy($$->type_id, $1);|
-      ID LP RP {$$ = mknode(0, FUNC_CALL, yylineno); strcpy($$->type_id, $1);}|
-      ID LP Args RP {$$ = mknode(1, FUNC_CALL, yylineno, $3); strcpy($$->type_id, $1);}|
+      ID {$$ = mknode(0, ID, yylineno); strcpy($$->type_id, $1);} |
+      ID LP RP {$$ = mknode(0, FUNC_CALL, yylineno); strcpy($$->type_id, $1);} |
+      ID LP Args RP {$$ = mknode(1, FUNC_CALL, yylineno, $3); strcpy($$->type_id, $1);} |
       ID ArrayDec {$$ = mknode(1, ARRAY_ID, yylineno, $2); strcpy($$->type_id, $1);}
     ;
 

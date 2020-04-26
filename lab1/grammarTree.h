@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
+#include "grammarTree.tab.h"
 
 extern int yylineno;
 extern char *yytext;
@@ -19,6 +21,7 @@ typedef struct node{
     int level;
     int kind;
     node *ptr[4];
+    int type;
     union{ // 存放ID/INT/FLOAT/CHAR的值
         char identifier[32];
         int constant_int;
@@ -28,6 +31,3 @@ typedef struct node{
 
 // 构造抽象语法树，变长参数，name:语法单元名称，num:变长参数中语法节点的个数
 node *mknode(int num, int kind, int pos, ...);
-
-// 遍历抽象语法树, level:语法树的层次
-void display(node *node, int level);

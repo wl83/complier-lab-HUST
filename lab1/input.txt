@@ -1,32 +1,17 @@
-// this is comment
-class test
-{
-    int m;
-    int n;
-    void display(int a, int b){
-        int x;
-        float f;
-        bool b, d, e;
-        string s;
-        x = 211;
-        x = -0x1a;
-        f = 0.001;
-        f = -1.2e-1;
-        b = true;
-        s = "just test";
-        s = null;
-        x = a + b;
-        if (a == b){
-            if (c == d)
-                Print("ifif");
-            else
-                Print("ifelse");
-        }
-        else {
-            if(c == d)
-                Print("elseif");
-            else
-                Print("elseelse");
-        }
+int a,b,c;
+float m,n;
+int fibo(int a){
+    if(a == 1 || a == 2) return 1;
+    return fibo(a-1) + fibo(a-2);
+}
+int main(){
+    int m,n,i;
+    m=read();
+    i=1;
+    while(i<m){
+        n=fibo(i);
+        write(n);
+        i++;
     }
+    return 1;
 }

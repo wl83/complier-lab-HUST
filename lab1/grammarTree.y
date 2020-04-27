@@ -73,7 +73,7 @@ program : ExtDefList {display($1, 0);}
 
 // 外部定义列表 ： 外部定义 外部定义列表 | 空
 ExtDefList : ExtDef ExtDefList {$$ = mknode(2, EXT_DEF_LIST, yylineno, $1, $2);} |
-             {$$ = NULL}
+             {$$ = NULL;}
     ;
 
 // 外部定义 ： 类型声明 外部声明列表 分号 |
@@ -104,7 +104,7 @@ VarDec : ID {$$ = mknode(0, ID, yylineno); strcpy($$->type_id, $1);}|
 // 数组声明 ： 标识符 左中括号 表达式 右中括号 |
 //           标识符 左中括号 右总括号 |
 //           错误
-ArrayDec : LB Exp RB {$$ = $2}| 
+ArrayDec : LB Exp RB {$$ = $2;}| 
            LB Exp RB ArrayDec {$$ = mknode(2, ARRAY_DEC, yylineno, $2, $4);}
     ;
 

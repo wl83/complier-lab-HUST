@@ -1,33 +1,34 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#include "stdarg.h"
 #include "grammarTree.tab.h"
+#define MAXLENGTH   200
+#define DX 3*sizeof(int)          /*活动记录控制信息需要的单元数，这个根据实际系统调整*/
+//以下语法树结点类型、三地址结点类型等定义仅供参考，实验时一定要根据自己的理解来定义
+int LEV;      //层号
 
-extern int yylineno;
-extern char *yytext;
-
-enum{EXT_DEF_LIST, EXT_VAR_DEF, FUNC_DEF, FUNC_DEC, EXT_DEC_LIST, PARAM_LIST,
-     PARAM_DEC, VAR_DEF, DEC_LIST, DEF_LIST, COMP_STM, STM_LIST, EXP_STMT, 
-     IF_THEN, IF_THEN_ELSE, FUNC_CALL, ARGS, FUNCTION, PARAM, ARG, CALL, 
-     LABEL, GOTO, JLT, JLE, JGT, JGE, EQ, NEQ, AUTO_ADD_L, AUTO_ADD_R, 
-     AUTO_SUB_L, AUTO_SUB_R, ARRAY_ID, ARRAY_DEC, ARRAY};
-
-// 抽象语法树
-typedef struct node{
-    int line;
-    char *name;
-    int level;
-    int kind;
-    struct node *ptr[4];
-    int type;
-    union{ // 存放ID/INT/FLOAT/CHAR的值
-        char type_id[32];
-        int type_int;
-        float type_float;
-        char type_char;
+struct ASTNode {
+        //以下对结点属性定义没有考虑存储效率，只是简单地列出要用到的一些属性
+	int kind;
+	union {
+		  char type_id[33];             //由标识符生成的叶结点
+		  int type_int;                 //由整常数生成的叶结点
+		  float type_float;               //由浮点常数生成的叶结点
+          char type_char;
+	      };
+    struct ASTNode *ptr[4];         //由kind确定有多少棵子树
+    int place;                     //存放（临时）变量在符号表的位置序号
+    char Etrue[15],Efalse[15];       //对布尔表达式的翻译时，真假转移目标的标号
+    char Snext[15];               //结点对应语句S执行后的下一条语句位置标号
+    struct codenode *code;          //该结点中间代码链表头指针
+    int type;                      //用以标识表达式结点的类型
+    int pos;                       //语法单位所在位置行号
+    int offset;                     //偏移量
+    int width;                     //占数据字节数
+    int num;                      //计数器，可以用来统计形参个数
     };
-}node;
 
-// 构造抽象语法树，变长参数，name:语法单元名称，num:变长参数中语法节点的个数
-node *mknode(int num, int kind, int pos, ...);
+
+struct ASTNode * mknode(int num,int kind,int pos,...);
+

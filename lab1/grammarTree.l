@@ -72,10 +72,14 @@ CHAR ['][^\n][']
 "if"     {printf("(%s, IF)\n", yytext);return IF;}
 "else"   {printf("(%s, ELSE)\n", yytext);return ELSE;}
 "while"  {printf("(%s, WHILE)\n", yytext);return WHILE;}
+"switch" {printf("(%s, SWITCH)\n", yytext);return SWITCH;}
+"case"   {printf("(%s, CASE)\n", yytext);return CASE;}
+"struct" {printf("(%s, STRUCT)\n", yytext);return STRUCT;}
 
 {ID}     {printf("(%s, INDENTIFIER)\n", yytext);strcpy(yylval.type_id,  yytext); return ID;}
 ";"		 {printf("(%s, SEMI)\n", yytext);return SEMI;}
 ","		 {printf("(%s, COMMA)\n", yytext);return COMMA;}
+"."      {printf("(%s, DOT)\n", yytext);return DOT;}
 ">"|"<"|">="|"<="|"=="|"!=" {printf("(%s, RELOP)\n", yytext);strcpy(yylval.type_id, yytext);return RELOP;}
 "="		 {printf("(%s, ASSIGNOP)\n", yytext);return ASSIGNOP;}
 "+"		 {printf("(%s, PLUSOP)\n", yytext);return PLUS;}

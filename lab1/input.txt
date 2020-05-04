@@ -15,6 +15,12 @@ int main(){
         write(n);
         i=i+1;
         i++;
+        i*=1;
+        i/=1;
+        i+=1;
+        i-=1;
+        i = i % 10;
+        i %= 10;
     }
     return 047;
 }

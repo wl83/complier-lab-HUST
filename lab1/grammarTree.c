@@ -143,6 +143,8 @@ void display(struct ASTNode *T,int indent)
     case CHAR:
         printf("%*cCHAR: %c\n", indent, ' ', T->type_char);
         break;
+    case STRING:
+        printf("%*cSTRING: %c\n", indent, ' ', T->type_string);
 	case ASSIGNOP:
     case PLUSASSIGNOP:
     case MINUSASSIGNOP:

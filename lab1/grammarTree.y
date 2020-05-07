@@ -17,6 +17,7 @@ void display(struct ASTNode *,int);
         char   type_char;
 	float  type_float;
 	char   type_id[32];
+        char   type_string[32];
 	struct ASTNode *ptr;
 };
 
@@ -28,7 +29,9 @@ void display(struct ASTNode *,int);
 %token <type_int> INT              /*指定INT的语义值是type_int，有词法分析得到的数值*/
 %token <type_id> ID  RELOP TYPE    /*指定ID,RELOP 的语义值是type_id，有词法分析得到的标识符字符串*/
 %token <type_float> FLOAT          /*指定ID的语义值是type_id，有词法分析得到的标识符字符串*/
+%token <type_string> STRING
 
+%token STRUCT
 %token DPLUS LP RP LC RC LB RB SEMI COMMA DOT     /*用bison对该文件编译时，带参数-d，生成的.tab.h中给这些单词进行编码，可在lex.l中包含parser.tab.h使用这些单词种类码*/
 %token PLUS MINUS STAR DIV MOD ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP AND OR NOT AUTOPLUS AUTOMINUS IF ELSE WHILE RETURN FOR SWITCH CASE COLON DEFAULT
 /*以下为接在上述token后依次编码的枚举常量，作为AST结点类型标记*/
@@ -134,6 +137,7 @@ Exp:    Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type_i
       | INT           {$$=mknode(0,INT,yylineno);$$->type_int=$1;$$->type=INT;}
       | CHAR          {$$=mknode(0,CHAR,yylineno);$$->type_char=$1;$$->type=CHAR;}
       | FLOAT         {$$=mknode(0,FLOAT,yylineno);$$->type_float=$1;$$->type=FLOAT;}
+      | STRING        {$$=mknode(0,STRING,yylineno);$$->type_string=$1;$$->type=STRING}
       | ID Arraylist  {$$=mknode(1,ARRAY_ID,yylineno,$2);strcpy($$->type_id,$1);}
       ;
 Args:    Exp COMMA Args    {$$=mknode(2,ARGS,yylineno,$1,$3);}

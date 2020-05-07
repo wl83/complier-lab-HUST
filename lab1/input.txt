@@ -2,6 +2,7 @@ int a,b,c;
 float m,n;
 char z;
 string x;
+int a[10];
 struct node{
     int q;
     int l;

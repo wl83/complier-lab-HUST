@@ -82,11 +82,23 @@ void display(struct ASTNode *T,int indent)
         display(T->ptr[1],indent);        //显示剩下语句
         break;
     case WHILE:         
-        printf("%*c循环语句：(%d)\n",indent,' ',T->pos);
-        printf("%*c循环条件：\n",indent+OFFSET,' ');
+        printf("%*c循环语句(WHILE)：(%d)\n",indent,' ',T->pos);
+        printf("%*c循环条件(WHILE)：\n",indent+OFFSET,' ');
         display(T->ptr[0],indent+OFFSET*2);      //显示循环条件
-        printf("%*c循环体：(%d)\n",indent+OFFSET,' ',T->pos);
+        printf("%*c循环体(WHILE)：(%d)\n",indent+OFFSET,' ',T->pos);
         display(T->ptr[1],indent+OFFSET*2);      //显示循环体
+        break;
+    case FOR:
+        printf("%*c循环语句(FOR)：(%d)\n",indent,' ',T->pos);
+        printf("%*c循环条件(FOR)：\n", indent+OFFSET, ' ');
+        display(T->ptr[0], indent+OFFSET*2);
+        printf("%*c循环体(FOR)：(%d)\n",indent+OFFSET,' ',T->pos);
+        display(T->ptr[1], indent+OFFSET*2);
+        break;
+    case FOR_DEC:
+        display(T->ptr[0], indent+OFFSET*2);
+        display(T->ptr[1], indent+OFFSET*2);
+        display(T->ptr[2], indent+OFFSET*2);
         break;
     case IF_THEN:       
         printf("%*c条件语句(IF_THEN)：(%d)\n",indent,' ',T->pos);
@@ -131,6 +143,14 @@ void display(struct ASTNode *T,int indent)
         display(T->ptr[0], indent);
         display(T->ptr[1], indent);
         break;
+    case STRUCT_DEF:
+        printf("%*c结构定义：(%d)\n", indent, ' ',T->pos);
+        display(T->ptr[0], indent+OFFSET);
+        display(T->ptr[1], indent+OFFSET);
+        break;
+    case STRUCT_TAG:
+        printf("%*c结构名：%s\n", indent, ' ', T->struct_name);
+        break;
     case ID:	        
         printf("%*cID： %s\n",indent,' ',T->type_id);
         break;
@@ -144,7 +164,8 @@ void display(struct ASTNode *T,int indent)
         printf("%*cCHAR: %c\n", indent, ' ', T->type_char);
         break;
     case STRING:
-        printf("%*cSTRING: %c\n", indent, ' ', T->type_string);
+        printf("%*cSTRING: %s\n", indent, ' ', T->type_string);
+        break;
 	case ASSIGNOP:
     case PLUSASSIGNOP:
     case MINUSASSIGNOP:

@@ -11,6 +11,7 @@ typedef union {
 	int type_float;
 	char type_id[32];
 	char type_string[32];
+	char struct_name[32];
 	struct node *ptr;
 } YYLVAL;
 #define YYSTYPE YYLVAL
@@ -24,7 +25,7 @@ INT_HEX [0][Xx]([1-9a-fA-F][0-9a-fA-F]*|[0])
 INT_OCT [0][0-7]*
 FLOAT [0-9]*[.][0-9]+([eE][-+]?([1-9][0-9*]|[0]))?
 CHAR ['][^\n][']
-STRING ["][^\n]["]
+STRING (\"[^\n]*\")
 
 
 %%
@@ -66,17 +67,18 @@ STRING ["][^\n]["]
 	return INT;
 }
 {FLOAT}  {printf("(%s, CONSTANTFLOAT)\n", yytext);yylval.type_float=atof(yytext); return FLOAT;}
-{CHAR}   {printf("(%s, CONSTANTCHAR)\n", yytext);yylval.type_char=yytext[0];return CHAR;}
-{STRING} {printf("(%s, CONSTANTSTRING)\n", yytext);yylval.type_string=yytext;return STRING;}
+{CHAR}   {printf("(%s, CONSTANTCHAR)\n", yytext);yylval.type_char=yytext[1];return CHAR;}
+{STRING} {printf("(%s, CONSTANTSTRING)\n", yytext);strcpy(yylval.type_string,yytext);return STRING;}
 "int"    {printf("(%s, TYPEINT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
 "float"  {printf("(%s, TYPEFLOAT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
 "char"   {printf("(%s, TYPECHAR)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
-"string" {printf("(%s, TYPESTRING)\n"), yytext);strcpy(yylval.type_string, yytext);return TYPE;}
+"string" {printf("(%s, TYPESTRING)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
 "struct" {printf("(%s, TYPESTRUCT)\n", yytext);return STRUCT;}
 "return" {printf("(%s, RETURN)\n", yytext);return RETURN;}
 "if"     {printf("(%s, IF)\n", yytext);return IF;}
 "else"   {printf("(%s, ELSE)\n", yytext);return ELSE;}
 "while"  {printf("(%s, WHILE)\n", yytext);return WHILE;}
+"for"    {printf("(%s, FOR)\n", yytext); return FOR;}
 "switch" {printf("(%s, SWITCH)\n", yytext);return SWITCH;}
 "case"   {printf("(%s, CASE)\n", yytext);return CASE;}
 

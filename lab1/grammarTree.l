@@ -79,8 +79,6 @@ STRING (\"[^\n]*\")
 "else"   {printf("(%s, ELSE)\n", yytext);return ELSE;}
 "while"  {printf("(%s, WHILE)\n", yytext);return WHILE;}
 "for"    {printf("(%s, FOR)\n", yytext); return FOR;}
-"switch" {printf("(%s, SWITCH)\n", yytext);return SWITCH;}
-"case"   {printf("(%s, CASE)\n", yytext);return CASE;}
 
 
 {ID}     {printf("(%s, INDENTIFIER)\n", yytext);strcpy(yylval.type_id,  yytext); return ID;}

@@ -116,8 +116,9 @@
      FOR_DEC = 332,
      STRUCT_DEF = 333,
      STRUCT_TAG = 334,
-     UMINUS = 335,
-     LOWER_THEN_ELSE = 336
+     EXP_ELE = 335,
+     UMINUS = 336,
+     LOWER_THEN_ELSE = 337
    };
 #endif
 /* Tokens.  */
@@ -198,8 +199,9 @@
 #define FOR_DEC 332
 #define STRUCT_DEF 333
 #define STRUCT_TAG 334
-#define UMINUS 335
-#define LOWER_THEN_ELSE 336
+#define EXP_ELE 335
+#define UMINUS 336
+#define LOWER_THEN_ELSE 337
 
 
 
@@ -217,7 +219,7 @@ typedef union YYSTYPE
 	struct ASTNode *ptr;
 }
 /* Line 1529 of yacc.c.  */
-#line 221 "grammarTree.tab.h"
+#line 223 "grammarTree.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -1,30 +1,65 @@
+// 测试全局变量声明
 int a,b,c;
 float m,n;
 char z;
 string x;
-int a[10];
+// 测试全局数组声明
+int arr[10];
+// 测试全局结构定义
 struct node{
     int q;
     int l;
 };
+// 测试函数定义
 int fibo(int a){
-    if(a == 1 || a == 2) return 1;
-    return fibo(a-1) + fibo(a-2);
+    // 测试if_then_else语句和逻辑运算表达式
+    if(a == 1 || a == 2) 
+        return 1;
+    else
+    // 测试return语句和函数调用
+        return fibo(a-1) + fibo(a-2);
 }
+
 int main(){
-    int m,n,i;
-    struct node temp;
-    m=read();
-    i=1;
-    while(i<m){
-        n=fibo(i);
-        write(n);
-        i=i+1;
-        z = 'z';
+    int a,b,c;
+    float m,n;
+    char z;
+    string x;
+    int i;
+    // 测试赋值
+    a = 1;
+    b =  0x1234abcd;
+    c = 0123;
+    m = 1.5;
+    n = 1.5E+10;
+    // 测试加减乘除模
+    a = b + c;
+    a = b - c;
+    m = m * n;
+    a = m / b;
+    a = b % c;
+    // 测试加等、减等、乘等、除等、模等
+    a += b;
+    a -= c;
+    a *= m;
+    a /= n;
+    a %= b;
+    // 测试自增、自减
+    a++;
+    a--;
+    ++b;
+    --b;
+    // 测试while循环
+    while(a < 100){
+        // 测试字符常量、字符串常量
+        z = 'k';
         x = "I am a string";
     }
-    for(i = 1;i < 10; i++){
-        x = "string";
+    // 测试for循环
+    for(i = 0; i < 100; i++){
+        // 测试if_then语句 和 逻辑运算表达式
+        if(i <= 50 || i >= 60 && !(i == 90))
+            // 测试结构体操作
+            temp.q = 0;
     }
-    return 047;
 }

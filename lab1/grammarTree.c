@@ -73,6 +73,8 @@ void display(struct ASTNode *T,int indent)
     case COMP_STM:      
         printf("%*c复合语句：(%d)\n",indent,' ',T->pos);
         printf("%*c复合语句的变量定义部分：\n",indent+OFFSET,' ');
+        // if(T->ptr[0] == NULL)
+        //     printf("\n\n NULL!! \n\n");
         display(T->ptr[0],indent+OFFSET*2);      //显示定义部分
         printf("%*c复合语句的语句部分：\n",indent+OFFSET,' ');
         display(T->ptr[1],indent+OFFSET*2);      //显示语句部分
@@ -185,6 +187,11 @@ void display(struct ASTNode *T,int indent)
         printf("%*c%s\n",indent,' ',T->type_id);
         display(T->ptr[0],indent+OFFSET);
         display(T->ptr[1],indent+OFFSET);
+        break;
+    case EXP_ELE:
+        printf("%*c结构体访问：\n", indent, ' ');
+        display(T->ptr[0], indent+OFFSET);
+        printf("%*c访问成员变量：%s\n", indent+OFFSET, ' ',T->type_id);
         break;
     case NOT:
     case UMINUS:    

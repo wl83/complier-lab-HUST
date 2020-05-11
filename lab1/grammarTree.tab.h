@@ -78,10 +78,10 @@
      WHILE = 294,
      FOR = 295,
      RETURN = 296,
-     SWITCH = 297,
-     CASE = 298,
-     COLON = 299,
-     DEFAULT = 300,
+     COLON = 297,
+     DEFAULT = 298,
+     CONTINUE = 299,
+     BREAK = 300,
      EXT_DEF_LIST = 301,
      EXT_VAR_DEF = 302,
      FUNC_DEF = 303,
@@ -161,10 +161,10 @@
 #define WHILE 294
 #define FOR 295
 #define RETURN 296
-#define SWITCH 297
-#define CASE 298
-#define COLON 299
-#define DEFAULT 300
+#define COLON 297
+#define DEFAULT 298
+#define CONTINUE 299
+#define BREAK 300
 #define EXT_DEF_LIST 301
 #define EXT_VAR_DEF 302
 #define FUNC_DEF 303
@@ -211,7 +211,7 @@ typedef union YYSTYPE
 #line 15 "grammarTree.y"
 {
 	int    type_int;
-        char   type_char;
+        char   type_char[5];
 	float  type_float;
 	char   type_id[32];
         char   type_string[32];

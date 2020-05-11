@@ -102,6 +102,12 @@ void display(struct ASTNode *T,int indent)
         display(T->ptr[1], indent+OFFSET*2);
         display(T->ptr[2], indent+OFFSET*2);
         break;
+    case CONTINUE:
+        printf("%*cCONTINUE语句：(%d)\n", indent, ' ', T->pos);
+        break;
+    case BREAK:
+        printf("%*cBREAK语句：(%d)\n", indent, ' ', T->pos);
+        break;
     case IF_THEN:       
         printf("%*c条件语句(IF_THEN)：(%d)\n",indent,' ',T->pos);
         printf("%*c条件：\n",indent+OFFSET,' ');
@@ -163,7 +169,7 @@ void display(struct ASTNode *T,int indent)
         printf("%*cFLAOT：%f\n",indent,' ',T->type_float);
         break;
     case CHAR:
-        printf("%*cCHAR: %c\n", indent, ' ', T->type_char);
+        printf("%*cCHAR: %s\n", indent, ' ', T->type_char);
         break;
     case STRING:
         printf("%*cSTRING: %s\n", indent, ' ', T->type_string);

@@ -7,8 +7,8 @@ int yycolumn=1;
 	yylloc.first_column=yycolumn;	yylloc.last_column=yycolumn+yyleng-1; yycolumn+=yyleng;
 typedef union {
 	int type_int;
-	char type_char;
-	int type_float;
+	char type_char[5];
+	float type_float;
 	char type_id[32];
 	char type_string[32];
 	char struct_name[32];
@@ -19,13 +19,13 @@ typedef union {
 %}
 %option yylineno
 
-ID   [A-Za-z][A-Za-z0-9]*  
+ID   [A-Za-z_][A-Za-z0-9_]*  
 INT_DEX [1-9][0-9]*|[0]
 INT_HEX [0][Xx]([1-9a-fA-F][0-9a-fA-F]*|[0])
 INT_OCT [0][0-7]*
 FLOAT [0-9]*[.][0-9]+([eE][-+]?([1-9][0-9*]|[0]))?
-CHAR ['][^\n][']
-STRING (\"[^\n]*\")
+CHAR \'(\\.|[^'])\'
+STRING \"(\\.|[^"\\])*\"
 
 
 %%
@@ -67,7 +67,7 @@ STRING (\"[^\n]*\")
 	return INT;
 }
 {FLOAT}  {printf("(%s, CONSTANTFLOAT)\n", yytext);yylval.type_float=atof(yytext); return FLOAT;}
-{CHAR}   {printf("(%s, CONSTANTCHAR)\n", yytext);yylval.type_char=yytext[1];return CHAR;}
+{CHAR}   {printf("(%s, CONSTANTCHAR)\n", yytext);strcpy(yylval.type_char,yytext);return CHAR;}
 {STRING} {printf("(%s, CONSTANTSTRING)\n", yytext);strcpy(yylval.type_string,yytext);return STRING;}
 "int"    {printf("(%s, TYPEINT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
 "float"  {printf("(%s, TYPEFLOAT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
@@ -79,6 +79,8 @@ STRING (\"[^\n]*\")
 "else"   {printf("(%s, ELSE)\n", yytext);return ELSE;}
 "while"  {printf("(%s, WHILE)\n", yytext);return WHILE;}
 "for"    {printf("(%s, FOR)\n", yytext); return FOR;}
+"continue" {printf("(%s, CONTINUE)\n", yytext);return CONTINUE;}
+"break"  {printf("(%s, BREAK)\n", yytext); return BREAK;}
 
 
 {ID}     {printf("(%s, INDENTIFIER)\n", yytext);strcpy(yylval.type_id,  yytext); return ID;}
@@ -112,7 +114,7 @@ STRING (\"[^\n]*\")
 [ \r\t]  {}   
 .		 {printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
 \/\/[^\n]*  {printf("(%s, LINECOMMENT)\n", yytext);}//匹配注释的正则表达式
-\/\*(\s|.)*?\*\/ {printf("(%s, BLOCKCOMMENT)\n", yytext);}//匹配注释的正则表达式
+[\/][\*]([^\*]|(\/\*)*[^\*])*(\/\*)*[\*][\/] {printf("(%s, BLOCKCOMMENT)\n", yytext);}//匹配注释的正则表达式
 %%
 
 /* 和bison联用时，不需要这部分

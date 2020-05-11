@@ -15,7 +15,7 @@ struct ASTNode {
 		  char type_id[33];             //由标识符生成的叶结点
 		  int type_int;                 //由整常数生成的叶结点
 		  float type_float;               //由浮点常数生成的叶结点
-                  char type_char;
+                  char type_char[5];
                   char type_string[32];
                   char struct_name[32];
 	      };

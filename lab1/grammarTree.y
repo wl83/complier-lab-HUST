@@ -14,7 +14,7 @@ void display(struct ASTNode *,int);
 
 %union {
 	int    type_int;
-        char   type_char;
+        char   type_char[5];
 	float  type_float;
 	char   type_id[32];
         char   type_string[32];
@@ -34,7 +34,7 @@ void display(struct ASTNode *,int);
 
 %token STRUCT
 %token DPLUS LP RP LC RC LB RB SEMI COMMA DOT     /*用bison对该文件编译时，带参数-d，生成的.tab.h中给这些单词进行编码，可在lex.l中包含parser.tab.h使用这些单词种类码*/
-%token PLUS MINUS STAR DIV MOD ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP AND OR NOT AUTOPLUS AUTOMINUS IF ELSE WHILE FOR RETURN FOR COLON DEFAULT
+%token PLUS MINUS STAR DIV MOD ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP AND OR NOT AUTOPLUS AUTOMINUS IF ELSE WHILE FOR RETURN FOR COLON DEFAULT CONTINUE BREAK
 /*以下为接在上述token后依次编码的枚举常量，作为AST结点类型标记*/
 %token EXT_DEF_LIST EXT_VAR_DEF FUNC_DEF FUNC_DEC EXT_DEC_LIST PARAM_LIST PARAM_DEC VAR_DEF DEC_LIST DEF_LIST COMP_STM STM_LIST EXP_STMT IF_THEN IF_THEN_ELSE ARRAY_LIST ARRAY_ID
 %token FUNC_CALL ARGS FUNCTION PARAM ARG CALL LABEL GOTO JLT JLE JGT JGE EQ NEQ FOR_DEC STRUCT_DEF STRUCT_TAG EXP_ELE
@@ -109,6 +109,8 @@ Stmt:   Exp SEMI    {$$=mknode(1,EXP_STMT,yylineno,$1);}
       | IF LP Exp RP Stmt ELSE Stmt   {$$=mknode(3,IF_THEN_ELSE,yylineno,$3,$5,$7);}
       | WHILE LP Exp RP Stmt {$$=mknode(2,WHILE,yylineno,$3,$5);}
       | FOR LP ForDec RP Stmt {$$=mknode(2,FOR,yylineno,$3,$5);}
+      | CONTINUE SEMI {$$=mknode(0,CONTINUE, yylineno);}
+      | BREAK SEMI {$$=mknode(0,BREAK,yylineno);}
       ;
 ForDec: Exp SEMI Exp SEMI Exp {$$=mknode(3, FOR_DEC, yylineno, $1, $3, $5);}
       | SEMI Exp SEMI {$$=mknode(1,FOR_DEC, yylineno, $2);}
@@ -153,7 +155,7 @@ Exp:    Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type_i
       | ID LP RP      {$$=mknode(0,FUNC_CALL,yylineno);strcpy($$->type_id,$1);}
       | ID            {$$=mknode(0,ID,yylineno);strcpy($$->type_id,$1);}
       | INT           {$$=mknode(0,INT,yylineno);$$->type_int=$1;$$->type=INT;}
-      | CHAR          {$$=mknode(0,CHAR,yylineno);$$->type_char=$1;$$->type=CHAR;}
+      | CHAR          {$$=mknode(0,CHAR,yylineno);strcpy($$->type_char, $1);$$->type=CHAR;}
       | FLOAT         {$$=mknode(0,FLOAT,yylineno);$$->type_float=$1;$$->type=FLOAT;}
       | STRING        {$$=mknode(0,STRING,yylineno);strcpy($$->type_string,$1);$$->type=STRING}
       | ID Arraylist  {$$=mknode(1,ARRAY_ID,yylineno,$2);strcpy($$->type_id,$1);}

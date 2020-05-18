@@ -16,6 +16,9 @@
     for循环语句;
     continue语句;
     break语句;
+    switch语句;
+    case语句;
+    default语句;
 
 # 支持的运算
     除+、-、*、/和&&、||、！外，支持:

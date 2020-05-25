@@ -23,7 +23,7 @@ void display(struct ASTNode *,int);
 };
 
 //  %type 定义非终结符的语义值类型
-%type  <ptr> program ExtDefList ExtDef  Specifier ExtDecList FuncDec CompSt VarList VarDec ParamDec Stmt StmList DefList Def DecList Dec Exp Args Arraylist ForDec StructSpecifier OptTag Tag CaseType
+%type  <ptr> program ExtDefList ExtDef  Specifier ExtDecList FuncDec CompSt VarList VarDec ParamDec Stmt StmList DefList Def DecList Dec Exp Args Arraylist ForDec StructSpecifier OptTag CaseType
 
 //% token 定义终结符的语义值类型
 %token <type_char> CHAR
@@ -37,8 +37,8 @@ void display(struct ASTNode *,int);
 %token PLUS MINUS STAR DIV MOD ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP AND OR NOT AUTOPLUS AUTOMINUS IF ELSE WHILE FOR RETURN FOR COLON DEFAULT CONTINUE BREAK VOID SWITCH CASE
 /*以下为接在上述token后依次编码的枚举常量，作为AST结点类型标记*/
 %token EXT_DEF_LIST EXT_VAR_DEF FUNC_DEF FUNC_DEC EXT_DEC_LIST PARAM_LIST PARAM_DEC VAR_DEF DEC_LIST DEF_LIST COMP_STM STM_LIST EXP_STMT IF_THEN IF_THEN_ELSE ARRAY_LIST ARRAY_ID
-%token FUNC_CALL ARGS FUNCTION PARAM ARG CALL LABEL GOTO JLT JLE JGT JGE EQ NEQ FOR_DEC STRUCT_DEF STRUCT_TAG EXP_ELE
-%token SWITCH_STMT CASE_STMT DEFAULT_STMT
+%token FUNC_CALL ARGS FUNCTION PARAM ARG CALL LABEL GOTO JLT JLE JGT JGE EQ NEQ FOR_DEC STRUCT_DEF STRUCT_DEC STRUCT_TAG EXP_ELE
+%token SWITCH_STMT CASE_STMT DEFAULT_STMT EXP_ARRAY EXT_STRUCT_DEF ARRAY_DEC
 
 %left ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP
 %left OR
@@ -60,29 +60,25 @@ ExtDefList: {$$=NULL;}
           | ExtDef ExtDefList {$$=mknode(2,EXT_DEF_LIST,yylineno,$1,$2);}   //每一个EXTDEFLIST的结点，其第1棵子树对应一个外部变量声明或函数
           ;  
 ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}   //该结点对应一个外部变量声明
-        | Specifier SEMI
+        | StructSpecifier SEMI {$$=mknode(1,EXT_STRUCT_DEF,yylineno,$1);}
         | Specifier FuncDec CompSt    {$$=mknode(3,FUNC_DEF,yylineno,$1,$2,$3);}         //该结点对应一个函数定义
         | error SEMI   { $$ = NULL; fprintf(stderr, "Grammar Error at Line %d Column %d：",yylloc.first_line,yylloc.first_column);}
          ;
 Specifier:  TYPE    {$$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);$$->type=!strcmp($1,"int")?INT:FLOAT;}   
-          | StructSpecifier {}
+          | StructSpecifier {$$=$1;}
            ;      
 StructSpecifier: STRUCT OptTag LC DefList RC {$$=mknode(2, STRUCT_DEF, yylineno, $2,$4);}
-               | STRUCT Tag {$$=mknode(1, STRUCT_DEF, yylineno, $2);}
+               | STRUCT OptTag {$$=mknode(1, STRUCT_DEC, yylineno, $2);}
                ;
-OptTag: {$$=NULL;}
-       | ID {$$=mknode(0, STRUCT_TAG, yylineno);strcpy($$->struct_name, $1);}
+OptTag: ID {$$=mknode(0, STRUCT_TAG, yylineno);strcpy($$->struct_name, $1);}
        ;
-Tag: ID {$$=mknode(0, STRUCT_TAG, yylineno); strcpy($$->struct_name, $1);}
-        ;
-
 
 ExtDecList:  VarDec      {$$=mknode(1,EXT_DEC_LIST,yylineno,$1);}       /*每一个EXT_DECLIST的结点，其第一棵子树对应一个变量名(ID类型的结点),第二棵子树对应剩下的外部变量名*/
            | VarDec COMMA ExtDecList {$$=mknode(2,EXT_DEC_LIST,yylineno,$1,$3);}
            ;  
 
 VarDec:  ID          {$$=mknode(0,ID,yylineno);strcpy($$->type_id,$1);}    //ID结点，标识符符号串存放结点的type_id
-       | ID Arraylist {$$=mknode(1,ARRAY_LIST,yylineno,$2);strcpy($$->type_id,$1);} 
+       | ID Arraylist {$$=mknode(1,ARRAY_DEC,yylineno,$2);strcpy($$->type_id,$1);} 
        ;
 
 Arraylist:  LB Exp RB                  {$$=mknode(1,ARRAY_LIST,yylineno,$2);}
@@ -167,7 +163,7 @@ Exp:    Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type_i
       | CHAR          {$$=mknode(0,CHAR,yylineno);strcpy($$->type_char, $1);$$->type=CHAR;}
       | FLOAT         {$$=mknode(0,FLOAT,yylineno);$$->type_float=$1;$$->type=FLOAT;}
       | STRING        {$$=mknode(0,STRING,yylineno);strcpy($$->type_string,$1);$$->type=STRING}
-      | ID Arraylist  {$$=mknode(1,ARRAY_ID,yylineno,$2);strcpy($$->type_id,$1);}
+      | ID Arraylist  {$$=mknode(1,EXP_ARRAY,yylineno,$2);strcpy($$->type_id,$1);}
       | Exp DOT ID    {$$=mknode(1,EXP_ELE,yylineno,$1); strcpy($$->type_id,$3);}
       | {$$=NULL;}
       ;

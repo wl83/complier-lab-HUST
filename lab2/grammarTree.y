@@ -67,7 +67,7 @@ ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}
 Specifier:  TYPE    {$$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);$$->type=!strcmp($1,"int")?INT:FLOAT;}   
           | StructSpecifier {$$=$1;}
            ;      
-StructSpecifier: STRUCT OptTag LC DefList RC {$$=mknode(2, STRUCT_DEF, yylineno, $2,$4);}
+StructSpecifier: STRUCT LC DefList RC {$$=mknode(2, STRUCT_DEF, yylineno, $2,$4);}
                | STRUCT OptTag {$$=mknode(1, STRUCT_DEC, yylineno, $2);}
                ;
 OptTag: ID {$$=mknode(0, STRUCT_TAG, yylineno);strcpy($$->struct_name, $1);}

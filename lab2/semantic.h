@@ -12,7 +12,15 @@ void semantic_Analysis(struct ASTNode *T);
 void semantic_Analysis0(struct ASTNode *T);
 
 // code.c
-
+char *strcat0(char *s1, char *s2);
+char *newAlias();
+char *newLabel();
+char *newTemp();
+struct codenode *genIR(int op, struct opn opn1, struct opn opn2, struct opn result);
+struct codenode *genLabel(char *label);
+struct codenode *genGoto(char *label);
+struct codenode *merge(int num, ...);
+void prnIR(struct codenode *head);
 
 // exp.c
 void boolExp(struct ASTNode *T);
@@ -32,8 +40,8 @@ void exp_array(struct ASTNode *T);
 void exp_struct_tag(struct ASTNode *T);
 
 // semantic_case.c
-void ext_var_list(struct ASTNode *T);
 void ext_def_list(struct ASTNode *T);
+void ext_var_list(struct ASTNode *T);
 void ext_var_def(struct ASTNode *T);
 void func_def(struct ASTNode *T);
 void func_dec(struct ASTNode *T);
@@ -52,3 +60,6 @@ void if_then_else(struct ASTNode *T);
 void while_dec(struct ASTNode *T);
 void exp_stmt(struct ASTNode *T);
 void return_dec(struct ASTNode *T);
+void for_dec(struct ASTNode *T);
+void switch_dec(struct ASTNode *T);
+void case_dec(struct ASTNode *T);

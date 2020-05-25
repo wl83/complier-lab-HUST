@@ -97,6 +97,9 @@ void Exp(struct ASTNode *T){
         case ID: // todo
             id_exp(T);
             break;
+        case INT:
+            int_exp(T);
+            break;
         case FLOAT: // todo
             float_exp(T);
             break;
@@ -178,7 +181,7 @@ void semantic_Analysis(struct ASTNode *T){
         case STRUCT_DEC:
             struct_dec(T);
             break;
-        case ARRAY_DEC:
+        case ARRAY_DEC: // todo
             array_dec(T);
             break;
         case FUNC_DEF:

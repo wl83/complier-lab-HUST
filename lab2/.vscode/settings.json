@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.vue": "html",
+        "__hash_table": "c",
+        "__node_handle": "c"
+    }
+}

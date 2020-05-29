@@ -127,8 +127,12 @@
      EXP_ARRAY = 343,
      EXT_STRUCT_DEF = 344,
      ARRAY_DEC = 345,
-     UMINUS = 346,
-     LOWER_THEN_ELSE = 347
+     AUTOPLUS_L = 346,
+     AUTOPLUS_R = 347,
+     AUTOMINUS_L = 348,
+     AUTOMINUS_R = 349,
+     UMINUS = 350,
+     LOWER_THEN_ELSE = 351
    };
 #endif
 /* Tokens.  */
@@ -220,8 +224,12 @@
 #define EXP_ARRAY 343
 #define EXT_STRUCT_DEF 344
 #define ARRAY_DEC 345
-#define UMINUS 346
-#define LOWER_THEN_ELSE 347
+#define AUTOPLUS_L 346
+#define AUTOPLUS_R 347
+#define AUTOMINUS_L 348
+#define AUTOMINUS_R 349
+#define UMINUS 350
+#define LOWER_THEN_ELSE 351
 
 
 
@@ -239,7 +247,7 @@ typedef union YYSTYPE
 	struct ASTNode *ptr;
 }
 /* Line 1529 of yacc.c.  */
-#line 243 "grammarTree.tab.h"
+#line 251 "grammarTree.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

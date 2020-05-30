@@ -784,7 +784,7 @@ int semantic_Analysis(struct ASTNode *T, int type, int level, char flag, int com
                     }
                 }
             }
-            else if(T->ptr[0]->kind == EXP_ELE || T->ptr[0]->kind == EXP_ARRAY){
+            else if(T->ptr[0]->kind == EXP_ELE || T->ptr[0]->kind == EXP_ARRAY || !strcmp(T->ptr[0]->type_id, "AUTO")){
                 type1 = semantic_Analysis(T->ptr[0], type, level, flag, command);
                 return type1;
             }

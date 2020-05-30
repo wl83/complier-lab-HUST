@@ -2130,22 +2130,22 @@ yyreduce:
 
   case 66:
 #line 150 "grammarTree.y"
-    {(yyval.ptr)=mknode(1,AUTOPLUS_R,yylineno,(yyvsp[(1) - (2)].ptr));strcpy((yyval.ptr)->type_id, "RPAUTOPLUS");;}
+    {(yyval.ptr)=mknode(1,AUTOPLUS_R,yylineno,(yyvsp[(1) - (2)].ptr));strcpy((yyval.ptr)->type_id, "AUTO");;}
     break;
 
   case 67:
 #line 151 "grammarTree.y"
-    {(yyval.ptr)=mknode(1,AUTOMINUS_R,yylineno,(yyvsp[(1) - (2)].ptr));strcpy((yyval.ptr)->type_id,"RPAUTOMINUS");;}
+    {(yyval.ptr)=mknode(1,AUTOMINUS_R,yylineno,(yyvsp[(1) - (2)].ptr));strcpy((yyval.ptr)->type_id,"AUTO");;}
     break;
 
   case 68:
 #line 152 "grammarTree.y"
-    {(yyval.ptr)=mknode(1,AUTOPLUS_L,yylineno,(yyvsp[(2) - (2)].ptr));strcpy((yyval.ptr)->type_id, "LPAUTOPLUS");;}
+    {(yyval.ptr)=mknode(1,AUTOPLUS_L,yylineno,(yyvsp[(2) - (2)].ptr));strcpy((yyval.ptr)->type_id, "AUTO");;}
     break;
 
   case 69:
 #line 153 "grammarTree.y"
-    {(yyval.ptr)=mknode(1,AUTOMINUS_L,yylineno,(yyvsp[(2) - (2)].ptr));strcpy((yyval.ptr)->type_id, "LPAUTOMINUS");;}
+    {(yyval.ptr)=mknode(1,AUTOMINUS_L,yylineno,(yyvsp[(2) - (2)].ptr));strcpy((yyval.ptr)->type_id, "AUTO");;}
     break;
 
   case 70:

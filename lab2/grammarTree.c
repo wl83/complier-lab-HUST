@@ -809,7 +809,7 @@ int semantic_Analysis(struct ASTNode *T, int type, int level, char flag, int com
                     semantic_error(T->pos, T->type_id, "不是函数");
                     return 0;
                 }
-                type = myTable.symbols[rtn+1].type;
+                type = myTable.symbols[rtn].type;
                 counter = 0;
                 semantic_Analysis(T->ptr[0], type, level, flag, command);
                 if(myTable.symbols[rtn].paramnum != counter)

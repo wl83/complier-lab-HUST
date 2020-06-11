@@ -160,7 +160,7 @@ Exp:    Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type_i
       | INT           {$$=mknode(0,INT,yylineno);$$->type_int=$1;$$->type=INT;}
       | CHAR          {$$=mknode(0,CHAR,yylineno);strcpy($$->type_char, $1);$$->type=CHAR;}
       | FLOAT         {$$=mknode(0,FLOAT,yylineno);$$->type_float=$1;$$->type=FLOAT;}
-      | STRING        {$$=mknode(0,STRING,yylineno);strcpy($$->type_string,$1);$$->type=STRING}
+      | STRING        {$$=mknode(0,STRING,yylineno);strcpy($$->type_string,$1);$$->type=STRING;}
       | ID Arraylist  {$$=mknode(1,EXP_ARRAY,yylineno,$2);strcpy($$->type_id,$1);}
       | Exp DOT ID    {$$=mknode(1,EXP_ELE,yylineno,$1); strcpy($$->type_id,$3);}
       | {$$=NULL;}

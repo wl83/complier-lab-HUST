@@ -183,6 +183,8 @@ void stm_list(struct ASTNode *T);
 void if_then(struct ASTNode *T);
 void if_then_else(struct ASTNode *T);
 void while_dec(struct ASTNode *T);
+void for_stmt(struct ASTNode *T);
+void for_dec(struct ASTNode *T);
 void exp_stmt(struct ASTNode *T);
 void return_dec(struct ASTNode *T);
 

@@ -95,6 +95,7 @@ void prnIR(struct codenode *head)
 {
     char opnstr1[32], opnstr2[32], resultstr[32];
     struct codenode *h = head;
+    if(h) {
     do
     {
         if (h->opn1.kind == INT)
@@ -167,4 +168,5 @@ void prnIR(struct codenode *head)
         }
         h = h->next;
     } while (h != head);
+    }
 }

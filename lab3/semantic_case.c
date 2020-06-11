@@ -9,28 +9,34 @@ extern struct symbol_scope_begin symbol_scope_TX;
 void ext_var_list(struct ASTNode *T)
 { //处理变量列表
     int rtn, num = 1;
-    switch (T->kind)
-    {
-    case EXT_DEC_LIST:
-        T->ptr[0]->type = T->type;                //将类型属性向下传递变量结点
-        T->ptr[0]->offset = T->offset;            //外部变量的偏移量向下传递
-        T->ptr[1]->type = T->type;                //将类型属性向下传递变量结点
-        T->ptr[1]->offset = T->offset + T->width; //外部变量的偏移量向下传递
-        T->ptr[1]->width = T->width;
-        ext_var_list(T->ptr[0]);
-        ext_var_list(T->ptr[1]);
-        T->num = T->ptr[1]->num + 1;
-        break;
-    case ID:
-        rtn = fillSymbolTable(T->type_id, newAlias(), LEV, T->type, 'V', T->offset); //最后一个变量名
-        if (rtn == -1)
-            semantic_error(T->pos, T->type_id, "变量重复定义");
-        else
-            T->place = rtn;
-        T->num = 1;
-        break;
-    default:
-        break;
+    if (T) {
+        switch (T->kind)
+        {
+        case EXT_DEC_LIST:
+            T->ptr[0]->type = T->type;                //将类型属性向下传递变量结点
+            T->ptr[0]->offset = T->offset;            //外部变量的偏移量向下传递
+            if (T->ptr[1]) {
+                T->ptr[1]->type = T->type;               //将类型属性向下传递变量结点
+                T->ptr[1]->offset = T->offset + T->width; //外部变量的偏移量向下传递
+                T->ptr[1]->width = T->width;
+            }
+            ext_var_list(T->ptr[0]);
+            if(T->ptr[1]) {
+                ext_var_list(T->ptr[1]);
+                T->num = T->ptr[1]->num + 1;
+            }
+            break;
+        case ID:
+            rtn = fillSymbolTable(T->type_id, newAlias(), LEV, T->type, 'V', T->offset); //最后一个变量名
+            if (rtn == -1)
+                semantic_error(T->pos, T->type_id, "变量重复定义");
+            else
+                T->place = rtn;
+            T->num = 1;
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -54,8 +60,7 @@ void ext_def_list(struct ASTNode *T)
     }
 }
 
-void ext_var_def(struct ASTNode *T)
-{
+void ext_var_def(struct ASTNode *T) {
     if (!strcmp(T->ptr[0]->type_id, "int"))
     {
         T->type = T->ptr[1]->type = INT;
@@ -443,6 +448,14 @@ void while_dec(struct ASTNode *T)
         T->width = T->ptr[1]->width;
     T->code = merge(5, genLabel(T->ptr[1]->Snext), T->ptr[0]->code,
                     genLabel(T->ptr[0]->Etrue), T->ptr[1]->code, genGoto(T->ptr[1]->Snext));
+}
+
+void for_stmt(struct ASTNode *T) {
+    
+}
+
+void for_dec(struct ASTNode *T) {
+
 }
 
 void exp_stmt(struct ASTNode *T)

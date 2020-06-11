@@ -131,7 +131,6 @@ void semantic_Analysis(struct ASTNode *T)
             struct_dec(T);
             break;
         case ARRAY_DEC:
-            printf("array\n");
             array_dec(T);
             break;
         case FUNC_DEF:
@@ -167,6 +166,12 @@ void semantic_Analysis(struct ASTNode *T)
             break;
         case WHILE:
             while_dec(T);
+            break;
+        case FOR:
+            for_stmt(T);
+            break;
+        case FOR_DEC:
+            for_dec(T);
             break;
         case EXP_STMT:
             exp_stmt(T);

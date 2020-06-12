@@ -6,6 +6,8 @@ extern int func_size; //函数的活动记录大小
 extern struct symboltable symbolTable;
 extern struct symbol_scope_begin symbol_scope_TX;
 
+char *label;
+
 void ext_var_list(struct ASTNode *T)
 { //处理变量列表
     int rtn, num = 1;
@@ -189,23 +191,19 @@ void struct_dec(struct ASTNode *T)
 void array_dec(struct ASTNode *T)
 {
     int width, rtn;
-    if (T->type == INT)
-    {
+    if (T->type == INT){
         width = 4;
     }
-    if (T->type == FLOAT)
-    {
+    if (T->type == FLOAT){
         width = 8;
     }
-    if (T->type == CHAR)
-    {
+    if (T->type == CHAR){
         width = 1;
     }
     T->width = width * T->ptr[1]->type_int;
     T->ptr[0]->offset = T->offset;
     rtn = fillSymbolTable(T->type_id, newAlias(), LEV, T->type, 'V', 0); //函数不在数据区中分配单元，偏移量为0
-    if (rtn == -1)
-    {
+    if (rtn == -1){
         semantic_error(T->pos, T->type_id, "数组重复定义");
         return;
     }
@@ -244,7 +242,16 @@ void param_dec(struct ASTNode *T)
     else
         T->ptr[1]->place = rtn;
     T->num = 1;                                //参数个数计算的初始值
-    T->width = T->ptr[0]->type == INT ? 4 : 8; //参数宽度
+    // T->width = T->ptr[0]->type == INT ? 4 : (T->ptr[0]->type == FLOAT ? 8 : 1); //参数宽度
+    if (T->ptr[0]->type == INT) {
+        T->width = 4;
+    }
+    if (T->ptr[0]->type == FLOAT) {
+        T->width = 8;
+    }
+    if (T->ptr[0]->type == CHAR) {
+        T->width = 1;
+    }
     result.kind = ID;
     strcpy(result.id, symbolTable.symbols[rtn].alias);
     result.offset = T->offset;
@@ -443,19 +450,50 @@ void while_dec(struct ASTNode *T)
     boolExp(T->ptr[0]); //循环条件，要单独按短路代码处理
     T->width = T->ptr[0]->width;
     strcpy(T->ptr[1]->Snext, newLabel());
+    strcpy(label, T->Snext);
     semantic_Analysis(T->ptr[1]); //循环体
     if (T->width < T->ptr[1]->width)
         T->width = T->ptr[1]->width;
     T->code = merge(5, genLabel(T->ptr[1]->Snext), T->ptr[0]->code,
-                    genLabel(T->ptr[0]->Etrue), T->ptr[1]->code, genGoto(T->ptr[1]->Snext));
+                    genLabel(T->ptr[0]->Etrue), T->ptr[1]->code, 
+                    genGoto(T->ptr[1]->Snext));
 }
 
 void for_stmt(struct ASTNode *T) {
+    // 处理循环初始语句
+    T->ptr[0]->offset = T->offset;
+    T->ptr[0]->ptr[0]->offset = T->ptr[0]->offset;
+    Exp(T->ptr[0]->ptr[0]);
+    T->ptr[0]->width = T->ptr[0]->ptr[0]->width;
+    // 处理循环条件
+    strcpy(T->ptr[0]->ptr[1]->Etrue, newLabel()); //子结点继承属性的计算
+    strcpy(T->ptr[0]->ptr[1]->Efalse, T->Snext);
+    T->ptr[0]->ptr[1]->offset = T->ptr[0]->offset + T->ptr[0]->width;
+    boolExp(T->ptr[0]->ptr[1]);
+    if(T->ptr[0]->width < T->ptr[0]->ptr[1]->width)
+        T->ptr[0]->width = T->ptr[0]->ptr[1]->width;
+    // 循环体
+    strcpy(T->ptr[1]->Snext, newLabel());
+    semantic_Analysis(T->ptr[1]);
+    // 自动运算条件
+    T->ptr[0]->ptr[2]->offset = T->ptr[0]->offset + T->ptr[0]->width;
+    strcpy(T->ptr[0]->ptr[2]->Snext, newLabel());
+    Exp(T->ptr[0]->ptr[2]);
+    if(T->ptr[0]->width < T->ptr[0]->ptr[2]->width)
+        T->ptr[0]->width = T->ptr[0]->ptr[2]->width;
+    T->width = T->ptr[0]->width >= T->ptr[1]->width ? T->ptr[0]->width : T->ptr[1]->width;
+    T->code = merge(7, T->ptr[0]->ptr[0]->code, 
+                    genLabel(T->ptr[1]->Snext), 
+                    T->ptr[0]->ptr[1]->code,
+                    genLabel(T->ptr[0]->ptr[1]->Etrue),
+                    T->ptr[1]->code,
+                    T->ptr[0]->ptr[2]->code,
+                    genGoto(T->ptr[1]->Snext));
     
 }
 
-void for_dec(struct ASTNode *T) {
-
+void break_dec(struct ASTNode *T) {
+    // T->code = merge(2, T->code, genGoto(label));
 }
 
 void exp_stmt(struct ASTNode *T)
@@ -496,5 +534,29 @@ void return_dec(struct ASTNode *T)
         T->width = 0;
         result.kind = 0;
         T->code = genIR(RETURN, opn1, opn2, result);
+    }
+}
+
+void switch_stmt(struct ASTNode *T){
+    // switch选择表达式
+    T->ptr[0]->offset = T->offset;
+    Exp(T->ptr[0]);
+    // printf("%s\n", symbolTable.symbols[T->ptr[0]->place].alias);
+    T->width = T->ptr[0]->width;
+    strcpy(T->Snext, newLabel());
+
+    // case语句
+    T->ptr[1]->offset = T->offset;
+    case_stmt(T, T->ptr[1]);
+    if(T->width < T->ptr[1]->width)
+        T->width = T->ptr[1]->width;
+    
+}
+
+void case_stmt(struct ASTNode *parent, struct ASTNode *T) {
+    struct ASTNode *T0 = T;
+    
+    while(T0) {
+        
     }
 }

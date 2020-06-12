@@ -120,8 +120,9 @@ void prnIR(struct codenode *head)
         case MINUS:
         case STAR:
         case DIV:
+        case MOD:
             printf("  %s := %s %c %s\n", resultstr, opnstr1,
-                   h->op == PLUS ? '+' : h->op == MINUS ? '-' : h->op == STAR ? '*' : '\\', opnstr2);
+                   h->op == PLUS ? '+' : h->op == MINUS ? '-' : h->op == STAR ? '*' : h->op == DIV ? '\\' : '%', opnstr2);
             break;
         case FUNCTION:
             printf("\nFUNCTION %s :\n", h->result.id);

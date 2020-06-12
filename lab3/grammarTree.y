@@ -109,8 +109,8 @@ Stmt:   Exp SEMI    {$$=mknode(1,EXP_STMT,yylineno,$1);}
       | CONTINUE SEMI {$$=mknode(0,CONTINUE, yylineno);}
       | BREAK SEMI {$$=mknode(0,BREAK,yylineno);}
       | SWITCH LP Exp RP Stmt {$$=mknode(2,SWITCH_STMT,yylineno,$3,$5);}
-      | CASE CaseType COLON Stmt {$$=mknode(2,CASE_STMT, yylineno,$2,$4);}
-      | DEFAULT COLON Stmt {$$=mknode(1,DEFAULT_STMT, yylineno,$3);}
+      | CASE CaseType COLON StmList {$$=mknode(3, CASE_STMT, yylineno, $2, $4);}
+      | DEFAULT COLON Stmt {$$=mknode(1, DEFAULT_STMT, yylineno,$3);}
       ;
 
 CaseType: INT {$$=mknode(0,INT,yylineno);$$->type_int=$1;$$->type=INT;}
@@ -118,7 +118,6 @@ CaseType: INT {$$=mknode(0,INT,yylineno);$$->type_int=$1;$$->type=INT;}
         ;
 
 ForDec: Exp SEMI Exp SEMI Exp {$$=mknode(3, FOR_DEC, yylineno, $1, $3, $5);}
-      | SEMI Exp SEMI {$$=mknode(1,FOR_DEC, yylineno, $2);}
         ;
 
 DefList: {$$=NULL; }

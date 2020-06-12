@@ -53,6 +53,7 @@ struct ASTNode {
 	int kind;
 	union {
 		char type_id[33];             //由标识符生成的叶结点
+        char case_id[33];
 		int type_int;                 //由整常数生成的叶结点
 		float type_float;               //由浮点常数生成的叶结点
         char type_char[5];
@@ -184,9 +185,11 @@ void if_then(struct ASTNode *T);
 void if_then_else(struct ASTNode *T);
 void while_dec(struct ASTNode *T);
 void for_stmt(struct ASTNode *T);
-void for_dec(struct ASTNode *T);
+void break_dec(struct ASTNode *T);
 void exp_stmt(struct ASTNode *T);
 void return_dec(struct ASTNode *T);
+void switch_stmt(struct ASTNode *T);
+void case_stmt(struct ASTNode *parent, struct ASTNode *T);
 
 // exp
 void Exp(struct ASTNode *T);
@@ -197,6 +200,8 @@ void float_exp(struct ASTNode *T);
 void char_exp(struct ASTNode *T);
 void string_exp(struct ASTNode *T);
 void assignop_exp(struct ASTNode *T);
+void other_assignop_exp(struct ASTNode *T);
+void auto_op_exp(struct ASTNode *T);
 void relop_exp(struct ASTNode *T);
 void args_exp(struct ASTNode *T);
 void op_exp(struct ASTNode *T);

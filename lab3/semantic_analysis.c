@@ -77,31 +77,20 @@ int fill_Temp(char *name, int level, int type, char flag, int offset)
     return symbolTable.index++; //返回的是临时变量在符号表中的位置序号
 }
 
-int match_param(int i, struct ASTNode *T)
-{ // 匹配函数参数
+int match_param(int i, struct ASTNode *T){ // 匹配函数参数
     int j, num = symbolTable.symbols[i].paramnum;
     int type1, type2;
+    struct ASTNode *T0 = T;
     if (num == 0 && T == NULL)
         return 1;
     for (j = 1; j < num; j++) {
-        if (!T) {
-            semantic_error(T->pos, "", "函数调用参数太少");
-            return 0;
-        }
-
         type1 = symbolTable.symbols[i + j].type; //形参类型
-        type2 = T->ptr[0]->type;
-        if (type1 != type2)
-        {
-            semantic_error(T->pos, "", "参数类型不匹配");
+        type2 = T0->ptr[0]->type;
+        if (type1 != type2) {
+            semantic_error(T0->pos, "", "参数类型不匹配");
             return 0;
         }
-        T = T->ptr[1];
-    }
-    if (T->ptr[1])
-    { //num个参数已经匹配完，还有实参表达式
-        semantic_error(T->pos, "", "函数调用参数太多");
-        return 0;
+        T0 = T0->ptr[1];
     }
     return 1;
 }
@@ -170,11 +159,14 @@ void semantic_Analysis(struct ASTNode *T)
         case FOR:
             for_stmt(T);
             break;
-        case FOR_DEC:
-            for_dec(T);
+        case BREAK:
+            break_dec(T);
             break;
         case EXP_STMT:
             exp_stmt(T);
+            break;
+        case SWITCH_STMT:
+            switch_stmt(T);
             break;
         case RETURN:
             return_dec(T);
@@ -201,6 +193,8 @@ void semantic_Analysis(struct ASTNode *T)
         case STARASSIGNOP:
         case DIV:
         case DIVASSIGNOP:
+        case MOD:
+        case MODASSIGNOP:
         case NOT:
         case UMINUS:
         case FUNC_CALL:

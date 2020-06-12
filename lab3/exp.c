@@ -36,14 +36,18 @@ void Exp(struct ASTNode *T)
         case ASSIGNOP:
             assignop_exp(T);
             break;
-        case AUTOMINUS_L: // TODO
-        case AUTOMINUS_R:
-        case AUTOPLUS_L:
-        case AUTOPLUS_R:
         case PLUSASSIGNOP:
         case MINUSASSIGNOP:
         case STARASSIGNOP:
         case DIVASSIGNOP:
+        case MODASSIGNOP:
+            other_assignop_exp(T);
+            break;
+        case AUTOMINUS_L: // TODO
+        case AUTOMINUS_R:
+        case AUTOPLUS_L:
+        case AUTOPLUS_R:
+            auto_op_exp(T);
             break;
         case AND:   //按算术表达式方式计算布尔值，未写完
         case OR:    //按算术表达式方式计算布尔值，未写完
@@ -54,6 +58,7 @@ void Exp(struct ASTNode *T)
         case MINUS:
         case STAR:
         case DIV:
+        case MOD:
             op_exp(T);
             break;
         case NOT: //未写完整
@@ -292,6 +297,84 @@ void assignop_exp(struct ASTNode *T)
     }
 }
 
+void other_assignop_exp(struct ASTNode *T) {
+    int rtn, num, width;
+    struct opn opn1, opn2, result;
+    struct opn result2;
+    if (T->ptr[0]->kind != ID)
+    {
+        semantic_error(T->pos, "", "赋值语句需要左值");
+    }
+    else{
+        T->ptr[0]->offset = T->offset;
+        Exp(T->ptr[0]);
+        T->ptr[1]->offset = T->offset + T->ptr[0]->width;
+        Exp(T->ptr[1]);
+        T->type = T->ptr[0]->type;
+        T->width = T->ptr[1]->width;
+        T->code = merge(2, T->ptr[0]->code, T->ptr[1]->code);
+
+        opn1.kind = ID;
+        strcpy(opn1.id, symbolTable.symbols[T->ptr[0]->place].alias); //右值一定是个变量或临时变量
+        opn1.offset = symbolTable.symbols[T->ptr[0]->place].offset;
+
+        opn2.kind = ID;
+        strcpy(opn2.id, symbolTable.symbols[T->ptr[1]->place].alias);
+        opn2.offset = symbolTable.symbols[T->ptr[1]->place].offset;
+        
+        result.kind = ID;
+        strcpy(result.id, newTemp());
+        if (T->kind == PLUSASSIGNOP)
+            T->code = merge(2, T->code, genIR(PLUS, opn1, opn2, result));
+        else if(T->kind == MINUSASSIGNOP)
+            T->code = merge(2, T->code, genIR(MINUS, opn1, opn2, result));
+        else if(T->kind == STARASSIGNOP)
+            T->code = merge(2, T->code, genIR(STAR, opn1, opn2, result));
+        else if(T->kind == DIVASSIGNOP)
+            T->code = merge(2, T->code, genIR(DIV, opn1, opn2, result));
+        else
+            T->code = merge(2, T->code, genIR(MOD, opn1, opn2, result));
+
+        result2.kind = ID;
+        strcpy(result2.id, symbolTable.symbols[T->ptr[0]->place].alias);
+        result2.type = T->type;
+        result2.offset = symbolTable.symbols[T->ptr[0]->place].offset;
+        T->code = merge(2, T->code, genIR(ASSIGNOP, result, opn2, result2));
+    }
+}
+
+void auto_op_exp(struct ASTNode *T) {
+    int rtn, num, width;
+    struct opn opn1, opn2, result;
+    struct opn result2;
+    if (T->ptr[0]->kind != ID){
+        semantic_error(T->pos, "", "赋值语句需要左值");
+    }
+    else {
+        T->ptr[0]->offset = T->offset;
+        Exp(T->ptr[0]);
+        T->type = T->ptr[0]->type;
+        T->width = T->ptr[0]->width;
+
+        opn1.kind = INT;
+        opn1.const_int = 1;
+        result.kind = ID;
+        strcpy(result.id, newTemp());
+        T->code = merge(2, T->code, genIR(ASSIGNOP, opn1, opn2, result));
+
+        opn1.kind = ID;
+        strcpy(opn1.id, symbolTable.symbols[T->ptr[0]->place].alias);
+        result2.kind = ID;
+        strcpy(result2.id, newTemp());
+        if (T->kind == AUTOPLUS_L || T->kind == AUTOPLUS_R)
+            T->code = merge(2, T->code, genIR(PLUS, opn1, result, result2));
+        else if(T->kind == AUTOMINUS_L || T->kind == AUTOMINUS_R)
+            T->code = merge(2, T->code, genIR(MINUS, opn1, result, result2));
+
+        T->code = merge(2, T->code, genIR(ASSIGNOP, result2, opn2, opn1));
+    }
+}
+
 void relop_exp(struct ASTNode *T)
 {
     T->type = INT;
@@ -306,8 +389,7 @@ void args_exp(struct ASTNode *T)
     Exp(T->ptr[0]);
     T->width = T->ptr[0]->width;
     T->code = T->ptr[0]->code;
-    if (T->ptr[1])
-    {
+    if (T->ptr[1]) {
         T->ptr[1]->offset = T->offset + T->ptr[0]->width;
         Exp(T->ptr[1]);
         T->width += T->ptr[1]->width;
@@ -331,26 +413,40 @@ void op_exp(struct ASTNode *T)
     else
         T->type = INT, T->width = T->ptr[0]->width + T->ptr[1]->width + 2;
     T->place = fill_Temp(newTemp(), LEV, T->type, 'T', T->offset + T->ptr[0]->width + T->ptr[1]->width);
+    
     opn1.kind = ID;
     strcpy(opn1.id, symbolTable.symbols[T->ptr[0]->place].alias);
     opn1.type = T->ptr[0]->type;
     opn1.offset = symbolTable.symbols[T->ptr[0]->place].offset;
+
     opn2.kind = ID;
     strcpy(opn2.id, symbolTable.symbols[T->ptr[1]->place].alias);
     opn2.type = T->ptr[1]->type;
     opn2.offset = symbolTable.symbols[T->ptr[1]->place].offset;
+
     result.kind = ID;
     strcpy(result.id, symbolTable.symbols[T->place].alias);
     result.type = T->type;
     result.offset = symbolTable.symbols[T->place].offset;
+
     T->code = merge(3, T->ptr[0]->code, T->ptr[1]->code, genIR(T->kind, opn1, opn2, result));
-    T->width = T->ptr[0]->width + T->ptr[1]->width + (T->type == INT ? 4 : 8);
+    if (T->type == INT) {
+        T->width = T->ptr[0]->width + T->ptr[1]->width + 4;
+    }
+    else if(T->type == FLOAT) {
+        T->width = T->ptr[0]->width + T->ptr[1]->width + 8;
+    }
+    else if(T->type == CHAR) {
+        T->width = T->ptr[0]->width + T->ptr[1]->width + 1;
+    }
 }
 
 void func_call_exp(struct ASTNode *T)
 {
     int rtn, num, width;
+    int count = 0, param_num;
     struct ASTNode *T0;
+    struct ASTNode *T1;
     struct opn opn1, opn2, result;
     rtn = searchSymbolTable(T->type_id);
     if (rtn == -1)
@@ -364,24 +460,43 @@ void func_call_exp(struct ASTNode *T)
         return;
     }
     T->type = symbolTable.symbols[rtn].type;
-    width = T->type == INT ? 4 : 8; //存放函数返回值的单数字节数
-    if (T->ptr[0])
-    {
+    // 存放函数返回值的单数字节数
+    if(T->type == INT) {
+        width = 4;
+    }
+    else if(T->type == FLOAT) {
+        width = 8;
+    }
+    else if(T->type == CHAR) {
+        width = 1;
+    }
+    if (T->ptr[0]) {
         T->ptr[0]->offset = T->offset;
         Exp(T->ptr[0]);                      //处理所有实参表达式求值，及类型
         T->width = T->ptr[0]->width + width; //累加上计算实参使用临时变量的单元数
         T->code = T->ptr[0]->code;
     }
-    else
-    {
+    else{
         T->width = width;
         T->code = NULL;
     }
-    match_param(rtn, T->ptr[0]); //处理所以参数的匹配
-        //处理参数列表的中间代码
+    T1 = T->ptr[0];
+    while(T1 != NULL) {
+        count++;
+        T1 = T1->ptr[1];
+    }
+    param_num = symbolTable.symbols[rtn].paramnum;
+    if (count > param_num) {
+        semantic_error(T->pos, "", "函数参数数量太多");
+    }
+    else if(count < param_num) {
+        semantic_error(T->pos, "", "函数参数数量太少");
+    }
+    else
+        match_param(rtn, T->ptr[0]); //处理所以参数的匹配
+    //处理参数列表的中间代码
     T0 = T->ptr[0];
-    while (T0)
-    {
+    while (T0){
         result.kind = ID;
         strcpy(result.id, symbolTable.symbols[T0->ptr[0]->place].alias);
         result.offset = symbolTable.symbols[T0->ptr[0]->place].offset;

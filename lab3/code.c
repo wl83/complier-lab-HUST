@@ -100,12 +100,16 @@ void prnIR(struct codenode *head)
     {
         if (h->opn1.kind == INT)
             sprintf(opnstr1, "#%d", h->opn1.const_int);
+        if (h->opn1.kind == CHAR)
+            sprintf(opnstr1, "#%c", h->opn1.const_char);
         if (h->opn1.kind == FLOAT)
             sprintf(opnstr1, "#%f", h->opn1.const_float);
         if (h->opn1.kind == ID)
             sprintf(opnstr1, "%s", h->opn1.id);
         if (h->opn2.kind == INT)
             sprintf(opnstr2, "#%d", h->opn2.const_int);
+        if (h->opn2.kind == CHAR)
+            sprintf(opnstr2, "#%c", h->opn2.const_char);
         if (h->opn2.kind == FLOAT)
             sprintf(opnstr2, "#%f", h->opn2.const_float);
         if (h->opn2.kind == ID)

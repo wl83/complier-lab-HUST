@@ -285,7 +285,7 @@ void assignop_exp(struct ASTNode *T)
         Exp(T->ptr[0]); //处理左值，例中仅为变量
         T->ptr[1]->offset = T->offset;
         Exp(T->ptr[1]);
-        // printf("%d, %d\n", T->ptr[0]->type, T->ptr[1]->type);
+
         if(T->ptr[0]->type != T->ptr[1]->type){
             semantic_error(T->pos,"", "赋值运算左右类型不匹配");
             return;
@@ -298,6 +298,13 @@ void assignop_exp(struct ASTNode *T)
             semantic_error(T->pos,T->ptr[1]->type_id,"是字符类型变量，不能参与运算");
             return;
         }
+
+        if (symbolTable.symbols[T->ptr[0]->place].type == INT) {
+            symbolTable.symbols[T->ptr[0]->place].const_int = T->ptr[1]->type_int;
+            // printf("%s: %d\n", T->ptr[0]->type_id, symbolTable.symbols[T->ptr[0]->place].const_int);
+        }
+            
+
         T->type = T->ptr[0]->type;
         T->width = T->ptr[1]->width;
         T->code = merge(2, T->ptr[0]->code, T->ptr[1]->code);
@@ -407,6 +414,8 @@ void auto_op_exp(struct ASTNode *T) {
         T->type = T->ptr[0]->type;
         T->width = T->ptr[0]->width;
 
+        T->place = T->ptr[0]->place;
+
         opn1.kind = INT;
         opn1.const_int = 1;
         result.kind = ID;
@@ -438,6 +447,7 @@ void args_exp(struct ASTNode *T)
 {
     T->ptr[0]->offset = T->offset;
     Exp(T->ptr[0]);
+    T->type = T->ptr[0]->type;
     T->width = T->ptr[0]->width;
     T->code = T->ptr[0]->code;
     if (T->ptr[1]) {
@@ -534,6 +544,10 @@ void func_call_exp(struct ASTNode *T)
     T1 = T->ptr[0];
     while(T1 != NULL) {
         count++;
+        num = rtn;
+        if(symbolTable.symbols[rtn+count].flag == 'P' && T1->type != symbolTable.symbols[rtn+count].type){
+            semantic_error(T1->pos, "", "实参与形参类型不符");
+        }
         T1 = T1->ptr[1];
     }
     param_num = symbolTable.symbols[rtn].paramnum;
@@ -589,24 +603,24 @@ void exp_array(struct ASTNode *T){
     else {
         int index = 0;
 		T0 = T->ptr[0];
-        T->place=rtn;       //结点保存变量在符号表中的位置
-        T->code=NULL;       //标识符不需要生成TAC
-        T->type=symbolTable.symbols[rtn].type; // 标记ID类型
-        T->offset=symbolTable.symbols[rtn].offset+(T->type==INT?4:(T->type==FLOAT?8:1))*compute_width0(T->ptr[0],symbolTable.symbols[rtn].array,0); // 内存中偏移值
-        T->width=0;   //未再使用新单元
+        T->place = rtn;       //结点保存变量在符号表中的位置
+        T->code = NULL;       //标识符不需要生成TAC
+        T->type = symbolTable.symbols[rtn].type; // 标记ID类型
+        // printf("%d\n", compute_width0(T->ptr[0], symbolTable.symbols[rtn].array, 0));
+        T->offset = (T->type == INT ? 4 : (T->type == FLOAT ? 8 : 1)) * compute_width0(T->ptr[0], symbolTable.symbols[rtn].array, 0); // 内存中偏移值
+        // printf("%d\n", T->offset);
+        T->width = 0;   //未再使用新单元
 		while(T0->kind==ARRAY_LIST){
 			Exp(T0->ptr[0]);
-			if(T0->ptr[0]->type!=INT)
-            {
+			if(T0->ptr[0]->type != INT){
                 semantic_error(T->pos,"", "数组维数需要整型");
                 break;                      
             }
-			if(index==8){
+			if(index == 8){
 				semantic_error(T->pos,"", "数组维度超过最大值");
 				break;
 			}
 			else if(symbolTable.symbols[rtn].array[index] <= T0->type_int){
-                // printf("%d %d\n", symbolTable.symbols[rtn].array[index], T0->ptr[0]->type_int);
 				semantic_error(T->pos,"", "数组维度超过定义值");
 				break;
             }
@@ -619,14 +633,20 @@ void exp_array(struct ASTNode *T){
             if(T0->ptr[0]->type!=INT){
                 semantic_error(T->pos,"", "数组维数需要整型");                     
             }
-            else if(index==8){
+            else if(index == 8){
                 semantic_error(T->pos,"", "数组维度超过最大值");
             }
-            else if(symbolTable.symbols[rtn].array[index] <= T0->ptr[0]->type_int){
-                // printf("%d %d\n", symbolTable.symbols[rtn].array[index], T0->type_int);
-                semantic_error(T->pos,"", "数组维度超过定义值");
+            if(T0->ptr[0]->kind == ID){
+                if(symbolTable.symbols[rtn].array[index] <= symbolTable.symbols[T0->ptr[0]->place].const_int){
+                    semantic_error(T->pos,"", "数组维度超过定义值");
+                }
             }
-            else if(symbolTable.symbols[rtn].array[index+1] > 0 && index < 7){
+            else{
+                if(symbolTable.symbols[rtn].array[index] <= T0->ptr[0]->type_int){
+                    semantic_error(T->pos,"", "数组维度超过定义值");
+                    }
+            }   
+            if(symbolTable.symbols[rtn].array[index+1] > 0 && index < 7){
                 semantic_error(T->pos,"", "数组维度不满足定义值");
             }
 	    }
@@ -653,8 +673,6 @@ void exp_ele(struct ASTNode *T)
 
     do{
         rtn++;
-        prn_symbol();
-        // printf("%s\n", symbolTable.symbols[rtn].name);
         if(!strcmp(symbolTable.symbols[rtn].name, T->type_id)) {
             flag = 1;
             break;

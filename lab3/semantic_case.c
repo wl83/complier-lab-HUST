@@ -386,7 +386,7 @@ void var_def(struct ASTNode *T)
             if(!struct_flag)
                 rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV, T0->ptr[0]->type, 'V', T->offset + T->width); //此处偏移量未计算，暂时为0
             else {
-                rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV, T0->ptr[0]->type, 'M', T->offset + T->width); //此处偏移量未计算，暂时为0
+                rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV+1, T0->ptr[0]->type, 'M', T->offset + T->width); //此处偏移量未计算，暂时为0
             }
             if (rtn == -1)
                 semantic_error(T0->ptr[0]->pos, T0->ptr[0]->type_id, "变量重复定义");

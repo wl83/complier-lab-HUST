@@ -30,21 +30,25 @@ int compute_arraywidth(int *array,int index){
     return res;
 }
 
-int compute_width0(struct ASTNode *T,int *array,int index){
+int compute_width0(struct ASTNode *T, int *array, int index){
     if(T) {
-        if(T->type==INT){
+        if(T->type == INT){
 		    return T->type_int;
 	    }
-	    return (T->ptr[0]->type_int)*compute_arraywidth(array,index+1)+compute_width0(T->ptr[1],array,index+1);
+        if(T->ptr[0]->kind == ID) {
+            int rtn = searchSymbolTable(T->ptr[0]->type_id);
+            // printf("!!%s: %d\n", T->ptr[0]->type_id, symbolTable.symbols[rtn].const_int);
+            return (symbolTable.symbols[rtn].const_int) * compute_arraywidth(array, index+1) + compute_width0(T->ptr[1], array, index+1);
+        }
+        else 
+	        return (T->ptr[0]->type_int) * compute_arraywidth(array, index+1) + compute_width0(T->ptr[1], array, index+1);
     }
-    else
-    {
+    else{
         return 1;
-    }
-    
+    } 
 }
 
-int array_out(struct ASTNode *T,int *a,int index){
+int array_out(struct ASTNode *T, int *a, int index){
 	if(index==10)
 		return -1;
 	if(T->type==INT){

@@ -7,47 +7,6 @@
 #define DX 3*sizeof(int)          /*活动记录控制信息需要的单元数，这个根据实际系统调整*/
 //以下语法树结点类型、三地址结点类型等定义仅供参考，实验时一定要根据自己的理解来定义
 
-// enum node_kind
-// {
-//     EXT_DEF_LIST,
-//     EXT_VAR_DEF,
-//     FUNC_DEF,
-//     FUNC_DEC,
-//     EXT_STRUCT_DEF,
-//     STRUCT_DEF,
-//     STRUCT_DEC,
-//     STRUCT_TAG,
-//     EXP_ELE,
-//     EXP_ARRAY,
-//     ARRAY_DEC,
-//     EXT_DEC_LIST,
-//     PARAM_LIST,
-//     PARAM_DEC,
-//     VAR_DEF,
-//     DEC_LIST,
-//     DEF_LIST,
-//     COMP_STM,
-//     STM_LIST,
-//     EXP_STMT,
-//     FOR_DEC,
-//     IF_THEN,
-//     IF_THEN_ELSE,
-//     FUNC_CALL,
-//     ARGS,
-//     FUNCTION,
-//     PARAM,
-//     ARG,
-//     CALL,
-//     LABEL,
-//     GOTO,
-//     JLT,
-//     JLE,
-//     JGT,
-//     JGE,
-//     EQ,
-//     NEQ
-// };
-
 struct ASTNode {
         //以下对结点属性定义没有考虑存储效率，只是简单地列出要用到的一些属性
 	int kind;
@@ -82,9 +41,7 @@ struct symbol {       //这里只列出了一个符号表项的部分属性，�
     char offset;      //外部变量和局部变量在其静态数据区或活动记录中的偏移量，
     char struct_name[33];
     int array[10];
-    // struct Array *arrayPtr;
-    struct Struct *structPtr;
-    int array_size;
+    int const_int;
         //或记录函数活动记录大小，目标代码生成时使用
     //函数入口等实验可能会用到的属性...
 };

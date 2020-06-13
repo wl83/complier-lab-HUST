@@ -20,9 +20,6 @@ void Exp(struct ASTNode *T)
         case ID: //查符号表，获得符号表中的位置，类型送type
             id_exp(T);
             break;
-        case STRUCT_TAG: // TODO
-            exp_struct_tag(T);
-            break;
         case INT:
             int_exp(T);
             break;
@@ -77,6 +74,9 @@ void Exp(struct ASTNode *T)
             break;
         case EXP_ARRAY: // TODO
             exp_array(T);
+            break;
+        case EXP_ELE:
+            exp_ele(T);
             break;
         }
     }
@@ -285,8 +285,8 @@ void assignop_exp(struct ASTNode *T)
         Exp(T->ptr[0]); //处理左值，例中仅为变量
         T->ptr[1]->offset = T->offset;
         Exp(T->ptr[1]);
-
-        if(T->ptr[0]->type!=T->ptr[1]->type){
+        // printf("%d, %d\n", T->ptr[0]->type, T->ptr[1]->type);
+        if(T->ptr[0]->type != T->ptr[1]->type){
             semantic_error(T->pos,"", "赋值运算左右类型不匹配");
             return;
         }
@@ -302,17 +302,17 @@ void assignop_exp(struct ASTNode *T)
         T->width = T->ptr[1]->width;
         T->code = merge(2, T->ptr[0]->code, T->ptr[1]->code);
 
-        if(T->ptr[1]->kind != EXP_ARRAY) {
+        if(T->ptr[1]->kind != EXP_ARRAY && T->ptr[1]->kind != EXP_ELE) {
             opn1.kind = ID;
             strcpy(opn1.id, symbolTable.symbols[T->ptr[1]->place].alias); //右值一定是个变量或临时变量
             opn1.offset = symbolTable.symbols[T->ptr[1]->place].offset;
         }
-        else {
+        else{
             opn1.kind=ID;
 			char s[10];
 			char str[80];
 			strcpy (str,symbolTable.symbols[T->ptr[1]->place].alias);
-			strcat (str," 偏移地址 ");
+			strcat (str," offset ");
 			//ito(T->ptr[0]->offset,s,0);
             sprintf(s,"%d",T->ptr[1]->offset);
             //itoa(no++,s,10);
@@ -323,7 +323,7 @@ void assignop_exp(struct ASTNode *T)
 			opn1.offset=T->ptr[1]->offset;
         }
 
-        if(T->ptr[0]->kind != EXP_ARRAY) {
+        if(T->ptr[0]->kind != EXP_ARRAY && T->ptr[0]->kind != EXP_ELE) {
             result.kind = ID;
             strcpy(result.id, symbolTable.symbols[T->ptr[0]->place].alias);
             result.offset = symbolTable.symbols[T->ptr[0]->place].offset;
@@ -333,7 +333,7 @@ void assignop_exp(struct ASTNode *T)
 			char s[10];
 			char str[80];
 			strcpy (str,symbolTable.symbols[T->ptr[0]->place].alias);
-			strcat (str," 偏移地址 ");
+			strcat (str," offset ");
 			//ito(T->ptr[0]->offset,s,0);
             sprintf(s,"%d",T->ptr[0]->offset);
             //itoa(no++,s,10);
@@ -584,9 +584,7 @@ void exp_array(struct ASTNode *T){
     rtn=searchSymbolTable(T->type_id);
 	if (rtn==-1)
         semantic_error(T->pos,T->type_id, "变量未定义");
-    else if (symbolTable.symbols[rtn].flag=='F')
-        semantic_error(T->pos,T->type_id, "是函数名，类型不匹配");
-    else if(symbolTable.symbols[rtn].flag!='A')
+    else if(symbolTable.symbols[rtn].flag != 'A')
         semantic_error(T->pos,T->type_id, "变量不是数组");
     else {
         int index = 0;
@@ -616,15 +614,15 @@ void exp_array(struct ASTNode *T){
 			T0=T0->ptr[1];
 		}
         //处理最后一维
-		if(T0->kind != ARRAY_LIST){
-			Exp(T0);
-            if(T0->type!=INT){
+		if(T0->kind == ARRAY_LAST){
+			Exp(T0->ptr[0]);
+            if(T0->ptr[0]->type!=INT){
                 semantic_error(T->pos,"", "数组维数需要整型");                     
             }
             else if(index==8){
                 semantic_error(T->pos,"", "数组维度超过最大值");
             }
-            else if(symbolTable.symbols[rtn].array[index] <= T0->type_int){
+            else if(symbolTable.symbols[rtn].array[index] <= T0->ptr[0]->type_int){
                 // printf("%d %d\n", symbolTable.symbols[rtn].array[index], T0->type_int);
                 semantic_error(T->pos,"", "数组维度超过定义值");
             }
@@ -635,7 +633,39 @@ void exp_array(struct ASTNode *T){
     }
 }
 
-void exp_struct_tag(struct ASTNode *T)
+void exp_ele(struct ASTNode *T)
 {
+    int rtn,flag=0;
+    int rtn2;
 
+    Exp(T->ptr[0]);
+    if (symbolTable.symbols[T->ptr[0]->place].type != STRUCT) {
+        semantic_error(T->pos, symbolTable.symbols[T->ptr[0]->place].name, "变量不是结构");
+    }
+    rtn = searchSymbolTable(symbolTable.symbols[T->ptr[0]->place].struct_name);
+    rtn2 = searchSymbolTable(symbolTable.symbols[T->ptr[0]->place].name);
+    if(rtn == -1) {
+        semantic_error(T->pos, symbolTable.symbols[T->ptr[0]->place].struct_name, "结构为定义");
+        return;
+    }
+
+    T->place = rtn2;
+
+    do{
+        rtn++;
+        prn_symbol();
+        // printf("%s\n", symbolTable.symbols[rtn].name);
+        if(!strcmp(symbolTable.symbols[rtn].name, T->type_id)) {
+            flag = 1;
+            break;
+        }
+    } while(rtn < symbolTable.index && symbolTable.symbols[rtn].flag == 'M');
+
+    if(!flag) {
+        semantic_error(T->pos, T->type_id, "不是该结构的成员变量");
+    }
+    else{
+        T->type = symbolTable.symbols[rtn].type;
+        T->offset = symbolTable.symbols[rtn].offset;
+    }
 }

@@ -81,8 +81,8 @@ VarDec:  ID          {$$=mknode(0,ID,yylineno);strcpy($$->type_id,$1);}    //ID�
        | ID Arraylist {$$=mknode(1,ARRAY_DEC,yylineno,$2);strcpy($$->type_id,$1);} 
        ;
 
-Arraylist:  LB INT RB                  {$$=mknode(1,ARRAY_LAST,yylineno,$2);$$->type_int=$2}
-          | LB INT RB Arraylist       {$$=mknode(1,ARRAY_LIST,yylineno,$4);$$->type_int=$2;}
+Arraylist:  LB Exp RB                  {$$=mknode(1,ARRAY_LAST,yylineno,$2);}
+          | LB Exp RB Arraylist       {$$=mknode(2,ARRAY_LIST,yylineno,$2,$4);}
         ;
 
 FuncDec: ID LP VarList RP   {$$=mknode(1,FUNC_DEC,yylineno,$3);strcpy($$->type_id,$1);}//函数名存放在$$->type_id

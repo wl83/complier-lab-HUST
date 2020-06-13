@@ -11,9 +11,11 @@ char continue_label[30];
 char case_temp[30];
 char case_label[30];
 char array_name[30];
+char struct_name[33];
 
 int struct_flag = 0;
 int array_index = 0;
+int struct_var_flag = 0;
 
 void ext_var_list(struct ASTNode *T)
 { //处理变量列表
@@ -47,22 +49,42 @@ void ext_var_list(struct ASTNode *T)
             array_index = 0;
             strcpy(array_name, T->type_id);
             rtn = fillSymbolTable(T->type_id, newAlias(), LEV, T->type, 'A', T->offset);//偏移量为0
-			if (rtn == -1)
+			if (rtn == -1) {
                 semantic_error(T->pos,T->type_id, "变量重复定义");
-            else 
+            }
+            else {
                 T->place = rtn;
-            T->num = compute_width(T->ptr[0]);
-            semantic_Analysis(T->ptr[1]);
+                T->num = compute_width(T->ptr[0]);
+                ext_var_list(T->ptr[0]);
+            }
 			break;
         case ARRAY_LIST:
             rtn = searchSymbolTable(array_name);
-            symbolTable.symbols[rtn].array[array_index] = T->type_int;
-            array_index++;
-            semantic_Analysis(T->ptr[0]);
+            if(rtn == -1) {
+                semantic_error(T->pos, array_name, "数组未定义");
+            }
+            if(T->ptr[0]->type != INT) {
+                semantic_error(T->pos, "", "数组定义维数需要用整型");
+            }
+            else{
+                symbolTable.symbols[rtn].array[array_index] = T->ptr[0]->type_int;
+                array_index++;
+                T->num = compute_width(T->ptr[1]);
+                ext_var_list(T->ptr[1]);
+            }
             break;
         case ARRAY_LAST:
             rtn = searchSymbolTable(array_name);
-            symbolTable.symbols[rtn].array[array_index] = T->type_int;
+            if(rtn == -1) {
+                semantic_error(T->pos, array_name, "数组未定义");
+            }
+            if(T->ptr[0]->type != INT) {
+                semantic_error(T->pos, "", "数组定义维数需要用整型");
+            }
+            else{
+                symbolTable.symbols[rtn].array[array_index] = T->ptr[0]->type_int;
+            }
+            break;
         default:
             break;
         }
@@ -324,19 +346,24 @@ void var_def(struct ASTNode *T)
         T->ptr[1]->type = INT;
         width = 4;
     }
-    if (!strcmp(T->ptr[0]->type_id, "float"))
+    else if (!strcmp(T->ptr[0]->type_id, "float"))
     {
         T->ptr[1]->type = FLOAT;
         width = 8;
     }
-    if (!strcmp(T->ptr[0]->type_id, "char"))
+    else if (!strcmp(T->ptr[0]->type_id, "char"))
     {
         T->ptr[1]->type = CHAR;
         width = 1;
     }
-    if (!strcmp(T->ptr[0]->type_id, "string"))
+    else if (!strcmp(T->ptr[0]->type_id, "string"))
     {
         T->ptr[1]->type = STRING;
+    }
+    else{
+        T->ptr[1]->type = STRUCT;
+        strcpy(struct_name, T->ptr[0]->ptr[0]->type_id);
+        struct_var_flag = 1;
     }
     // T->ptr[1]->type = !strcmp(T->ptr[0]->type_id, "int") ? INT : FLOAT; //确定变量序列各变量类型
     T0 = T->ptr[1]; //T0为变量名列表子树根指针，对ID、ASSIGNOP类结点在登记到符号表，作为局部变量
@@ -360,9 +387,7 @@ void var_def(struct ASTNode *T)
                 rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV, T0->ptr[0]->type, 'V', T->offset + T->width); //此处偏移量未计算，暂时为0
             else {
                 rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV, T0->ptr[0]->type, 'M', T->offset + T->width); //此处偏移量未计算，暂时为0
-                // struct_flag = 0;
             }
-                
             if (rtn == -1)
                 semantic_error(T0->ptr[0]->pos, T0->ptr[0]->type_id, "变量重复定义");
             else

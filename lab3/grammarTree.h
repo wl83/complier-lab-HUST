@@ -231,7 +231,7 @@ void while_dec(struct ASTNode *T);
 void exp_stmt(struct ASTNode *T);
 void return_dec(struct ASTNode *T);
 void exp_array(struct ASTNode *T);
-void exp_struct_tag(struct ASTNode *T);
+void exp_ele(struct ASTNode *T);
 
 // code
 char *str_catch(char *s1, char *s2);

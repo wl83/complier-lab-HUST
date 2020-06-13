@@ -6,28 +6,42 @@ int func_size; //函数的活动记录大小
 struct symboltable symbolTable;
 struct symbol_scope_begin symbol_scope_TX;
 
+extern int struct_var_flag;
+extern char struct_name[33];
+
 int compute_width(struct ASTNode *T){
-	if(T->type==INT){
-		return T->type_int;
-	}
-	return T->ptr[0]->type_int*compute_width(T->ptr[1]);
-    
-   //return 0;
+    if(T){
+        if(T->type==INT){
+		    return T->type_int;
+	    }
+	    return T->ptr[0]->type_int*compute_width(T->ptr[1]);
+    }
+    else
+    {
+        return 1;
+    }
 }
 int compute_arraywidth(int *array,int index){
-	int res=1;
-	while(array[index]!=0&&index<10){
-		res*=array[index];
-		index++;
-	}
-	return res;
+    int res=1;
+    while(array[index]!=0&&index<10){
+        res*=array[index];
+        index++;
+    }
+    return res;
 }
 
 int compute_width0(struct ASTNode *T,int *array,int index){
-	if(T->type==INT){
-		return T->type_int;
-	}
-	return (T->ptr[0]->type_int)*compute_arraywidth(array,index+1)+compute_width0(T->ptr[1],array,index+1);
+    if(T) {
+        if(T->type==INT){
+		    return T->type_int;
+	    }
+	    return (T->ptr[0]->type_int)*compute_arraywidth(array,index+1)+compute_width0(T->ptr[1],array,index+1);
+    }
+    else
+    {
+        return 1;
+    }
+    
 }
 
 int array_out(struct ASTNode *T,int *a,int index){
@@ -72,6 +86,8 @@ void prn_symbol()
             strcpy(symbolsType, "char");
         if (symbolTable.symbols[i].type == STRING)
             strcpy(symbolsType, "string");
+        if (symbolTable.symbols[i].type == STRUCT)
+            strcpy(symbolsType, "struct");
         printf("%6s %6s %6d  %6s %4c %6d\n", symbolTable.symbols[i].name,
                symbolTable.symbols[i].alias, symbolTable.symbols[i].level,
                symbolsType,
@@ -99,6 +115,10 @@ int fillSymbolTable(char *name, char *alias, int level, int type, char flag, int
     symbolTable.symbols[symbolTable.index].type = type;
     symbolTable.symbols[symbolTable.index].flag = flag;
     symbolTable.symbols[symbolTable.index].offset = offset;
+    if(struct_var_flag){
+        strcpy(symbolTable.symbols[symbolTable.index].struct_name, struct_name);
+        struct_var_flag = 0;
+    }
     return symbolTable.index++; //返回的是符号在符号表中的位置序号，中间代码生成时可用序号取到符号别名
 }
 

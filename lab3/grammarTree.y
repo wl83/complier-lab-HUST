@@ -36,7 +36,7 @@ void display(struct ASTNode *,int);
 %token DPLUS LP RP LC RC LB RB SEMI COMMA DOT     /*用bison对该文件编译时，带参数-d，生成的.tab.h中给这些单词进行编码，可在lex.l中包含parser.tab.h使用这些单词种类码*/
 %token PLUS MINUS STAR DIV MOD ASSIGNOP PLUSASSIGNOP MINUSASSIGNOP STARASSIGNOP DIVASSIGNOP MODASSIGNOP AND OR NOT AUTOPLUS AUTOMINUS IF ELSE WHILE FOR RETURN COLON DEFAULT CONTINUE BREAK VOID SWITCH CASE
 /*以下为接在上述token后依次编码的枚举常量，作为AST结点类型标记*/
-%token EXT_DEF_LIST EXT_VAR_DEF FUNC_DEF FUNC_DEC EXT_DEC_LIST PARAM_LIST PARAM_DEC VAR_DEF DEC_LIST DEF_LIST COMP_STM STM_LIST EXP_STMT IF_THEN IF_THEN_ELSE ARRAY_LIST ARRAY_ID
+%token EXT_DEF_LIST EXT_VAR_DEF FUNC_DEF FUNC_DEC EXT_DEC_LIST PARAM_LIST PARAM_DEC VAR_DEF DEC_LIST DEF_LIST COMP_STM STM_LIST EXP_STMT IF_THEN IF_THEN_ELSE ARRAY_LIST ARRAY_ID ARRAY_LAST
 %token FUNC_CALL ARGS FUNCTION PARAM ARG CALL LABEL GOTO JLT JLE JGT JGE EQ NEQ FOR_DEC STRUCT_DEF STRUCT_DEC STRUCT_TAG EXP_ELE
 %token SWITCH_STMT CASE_STMT DEFAULT_STMT EXP_ARRAY EXT_STRUCT_DEF ARRAY_DEC AUTOPLUS_L AUTOPLUS_R AUTOMINUS_L AUTOMINUS_R
 
@@ -81,8 +81,8 @@ VarDec:  ID          {$$=mknode(0,ID,yylineno);strcpy($$->type_id,$1);}    //ID�
        | ID Arraylist {$$=mknode(1,ARRAY_DEC,yylineno,$2);strcpy($$->type_id,$1);} 
        ;
 
-Arraylist:  LB Exp RB                  {$$=mknode(1,ARRAY_LIST,yylineno,$2);}
-          | LB Exp RB Arraylist       {$$=mknode(2,ARRAY_LIST,yylineno,$2,$4);}
+Arraylist:  LB INT RB                  {$$=mknode(1,ARRAY_LAST,yylineno,$2);$$->type_int=$2}
+          | LB INT RB Arraylist       {$$=mknode(1,ARRAY_LIST,yylineno,$4);$$->type_int=$2;}
         ;
 
 FuncDec: ID LP VarList RP   {$$=mknode(1,FUNC_DEC,yylineno,$3);strcpy($$->type_id,$1);}//函数名存放在$$->type_id

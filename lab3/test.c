@@ -1,20 +1,22 @@
 int a,b,c;
+int arr[10];
 float m,n;
-int fibo(int a)
-{
-    if (a == b) return 1;
-    return fibo(a-1) + fibo(a-2);
-}
+struct node{
+    int d;
+    int f;
+};
 int main()
 {
     int m,n,i;
     float f;
-    m = 3;
-    // m = read();
-    while(i <= m) {
-        m = n;
-        m++;
-        break;
-    }
+    arr[0] = 3;
+    // switch(m) {
+    //     case 1:
+    //         m = 1;
+    //         break;
+    //     case 2:
+    //         m = 2;
+    //         break;
+    // }
     return 1;
 }

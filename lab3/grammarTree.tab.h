@@ -102,37 +102,38 @@
      IF_THEN_ELSE = 318,
      ARRAY_LIST = 319,
      ARRAY_ID = 320,
-     FUNC_CALL = 321,
-     ARGS = 322,
-     FUNCTION = 323,
-     PARAM = 324,
-     ARG = 325,
-     CALL = 326,
-     LABEL = 327,
-     GOTO = 328,
-     JLT = 329,
-     JLE = 330,
-     JGT = 331,
-     JGE = 332,
-     EQ = 333,
-     NEQ = 334,
-     FOR_DEC = 335,
-     STRUCT_DEF = 336,
-     STRUCT_DEC = 337,
-     STRUCT_TAG = 338,
-     EXP_ELE = 339,
-     SWITCH_STMT = 340,
-     CASE_STMT = 341,
-     DEFAULT_STMT = 342,
-     EXP_ARRAY = 343,
-     EXT_STRUCT_DEF = 344,
-     ARRAY_DEC = 345,
-     AUTOPLUS_L = 346,
-     AUTOPLUS_R = 347,
-     AUTOMINUS_L = 348,
-     AUTOMINUS_R = 349,
-     UMINUS = 350,
-     LOWER_THEN_ELSE = 351
+     ARRAY_LAST = 321,
+     FUNC_CALL = 322,
+     ARGS = 323,
+     FUNCTION = 324,
+     PARAM = 325,
+     ARG = 326,
+     CALL = 327,
+     LABEL = 328,
+     GOTO = 329,
+     JLT = 330,
+     JLE = 331,
+     JGT = 332,
+     JGE = 333,
+     EQ = 334,
+     NEQ = 335,
+     FOR_DEC = 336,
+     STRUCT_DEF = 337,
+     STRUCT_DEC = 338,
+     STRUCT_TAG = 339,
+     EXP_ELE = 340,
+     SWITCH_STMT = 341,
+     CASE_STMT = 342,
+     DEFAULT_STMT = 343,
+     EXP_ARRAY = 344,
+     EXT_STRUCT_DEF = 345,
+     ARRAY_DEC = 346,
+     AUTOPLUS_L = 347,
+     AUTOPLUS_R = 348,
+     AUTOMINUS_L = 349,
+     AUTOMINUS_R = 350,
+     UMINUS = 351,
+     LOWER_THEN_ELSE = 352
    };
 #endif
 /* Tokens.  */
@@ -199,37 +200,38 @@
 #define IF_THEN_ELSE 318
 #define ARRAY_LIST 319
 #define ARRAY_ID 320
-#define FUNC_CALL 321
-#define ARGS 322
-#define FUNCTION 323
-#define PARAM 324
-#define ARG 325
-#define CALL 326
-#define LABEL 327
-#define GOTO 328
-#define JLT 329
-#define JLE 330
-#define JGT 331
-#define JGE 332
-#define EQ 333
-#define NEQ 334
-#define FOR_DEC 335
-#define STRUCT_DEF 336
-#define STRUCT_DEC 337
-#define STRUCT_TAG 338
-#define EXP_ELE 339
-#define SWITCH_STMT 340
-#define CASE_STMT 341
-#define DEFAULT_STMT 342
-#define EXP_ARRAY 343
-#define EXT_STRUCT_DEF 344
-#define ARRAY_DEC 345
-#define AUTOPLUS_L 346
-#define AUTOPLUS_R 347
-#define AUTOMINUS_L 348
-#define AUTOMINUS_R 349
-#define UMINUS 350
-#define LOWER_THEN_ELSE 351
+#define ARRAY_LAST 321
+#define FUNC_CALL 322
+#define ARGS 323
+#define FUNCTION 324
+#define PARAM 325
+#define ARG 326
+#define CALL 327
+#define LABEL 328
+#define GOTO 329
+#define JLT 330
+#define JLE 331
+#define JGT 332
+#define JGE 333
+#define EQ 334
+#define NEQ 335
+#define FOR_DEC 336
+#define STRUCT_DEF 337
+#define STRUCT_DEC 338
+#define STRUCT_TAG 339
+#define EXP_ELE 340
+#define SWITCH_STMT 341
+#define CASE_STMT 342
+#define DEFAULT_STMT 343
+#define EXP_ARRAY 344
+#define EXT_STRUCT_DEF 345
+#define ARRAY_DEC 346
+#define AUTOPLUS_L 347
+#define AUTOPLUS_R 348
+#define AUTOMINUS_L 349
+#define AUTOMINUS_R 350
+#define UMINUS 351
+#define LOWER_THEN_ELSE 352
 
 
 
@@ -247,7 +249,7 @@ typedef union YYSTYPE
 	struct ASTNode *ptr;
 }
 /* Line 1529 of yacc.c.  */
-#line 251 "grammarTree.tab.h"
+#line 253 "grammarTree.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

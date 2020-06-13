@@ -81,6 +81,7 @@ struct symbol {       //这里只列出了一个符号表项的部分属性，�
     char flag;       //符号标记，函数：'F'  变量：'V'   参数：'P'  临时变量：'T'
     char offset;      //外部变量和局部变量在其静态数据区或活动记录中的偏移量，
     char struct_name[33];
+    int array[10];
     // struct Array *arrayPtr;
     struct Struct *structPtr;
     int array_size;
@@ -164,6 +165,10 @@ void DisplaySymbolTable();
 int fillSymbolTable(char *name, char *alias, int level, int type, char flag, int offset);
 int fill_Temp(char *name, int level, int type, char flag, int offset);
 int match_param(int i, struct ASTNode *T);
+int compute_width(struct ASTNode *T);
+int compute_arraywidth(int *array,int index);
+int compute_width0(struct ASTNode *T,int *array,int index);
+int array_out(struct ASTNode *T,int *a,int index);
 
 // semantic_case
 void ext_var_list(struct ASTNode *T);
@@ -186,10 +191,12 @@ void if_then_else(struct ASTNode *T);
 void while_dec(struct ASTNode *T);
 void for_stmt(struct ASTNode *T);
 void break_dec(struct ASTNode *T);
+void continue_dec(struct ASTNode *T);
 void exp_stmt(struct ASTNode *T);
 void return_dec(struct ASTNode *T);
 void switch_stmt(struct ASTNode *T);
-void case_stmt(struct ASTNode *parent, struct ASTNode *T);
+void case_stmt(struct ASTNode *T);
+void default_stmt(struct ASTNode *T);
 
 // exp
 void Exp(struct ASTNode *T);

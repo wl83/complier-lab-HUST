@@ -6,6 +6,43 @@ int func_size; //函数的活动记录大小
 struct symboltable symbolTable;
 struct symbol_scope_begin symbol_scope_TX;
 
+int compute_width(struct ASTNode *T){
+	if(T->type==INT){
+		return T->type_int;
+	}
+	return T->ptr[0]->type_int*compute_width(T->ptr[1]);
+    
+   //return 0;
+}
+int compute_arraywidth(int *array,int index){
+	int res=1;
+	while(array[index]!=0&&index<10){
+		res*=array[index];
+		index++;
+	}
+	return res;
+}
+
+int compute_width0(struct ASTNode *T,int *array,int index){
+	if(T->type==INT){
+		return T->type_int;
+	}
+	return (T->ptr[0]->type_int)*compute_arraywidth(array,index+1)+compute_width0(T->ptr[1],array,index+1);
+}
+
+int array_out(struct ASTNode *T,int *a,int index){
+	if(index==10)
+		return -1;
+	if(T->type==INT){
+		a[index] = T->type_int;
+		return 1;
+	}
+	else {
+		a[index] = T->ptr[0]->type_int;
+		return array_out(T->ptr[1],a,index+1);
+	}
+}
+
 // 收集错误信息
 void semantic_error(int line, char *msg1, char *msg2){
     printf("第%d行,%s %s\n", line, msg1, msg2);
@@ -119,9 +156,6 @@ void semantic_Analysis(struct ASTNode *T)
         case STRUCT_DEC: // TODO
             struct_dec(T);
             break;
-        case ARRAY_DEC:
-            array_dec(T);
-            break;
         case FUNC_DEF:
             func_def(T);
             break;
@@ -162,11 +196,17 @@ void semantic_Analysis(struct ASTNode *T)
         case BREAK:
             break_dec(T);
             break;
+        case CONTINUE:
+            continue_dec(T);
+            break;
         case EXP_STMT:
             exp_stmt(T);
             break;
         case SWITCH_STMT:
             switch_stmt(T);
+            break;
+        case CASE_STMT:
+            case_stmt(T);
             break;
         case RETURN:
             return_dec(T);
@@ -199,6 +239,7 @@ void semantic_Analysis(struct ASTNode *T)
         case UMINUS:
         case FUNC_CALL:
         case EXP_ARRAY:
+        case EXP_ELE:
             Exp(T); //处理基本表达式
             break;
         }

@@ -1,27 +1,23 @@
 int a,b,c;
-char arr[10];
 float m,n;
-struct node{
-    int a;
-    int b;
-};
+int fibo(int a)
+{
+    if (a == 1 || a == 2) 
+        return 1;
+    return 
+        fibo(a - 1) + fibo(a - 2);
+}
+
 int main()
 {
-    int m, n, i;
-    float f;
-    char ch;
-    arr[1] = ch;
-    if(a == 1) {
-        m = 1;
-    }
-    else {
-        m = 2;
-    }
-    while(i < m) {
-        i++;
-    }
-    for(i = 1; i < n; i++) {
-        f = 0.5;
+    int m,n,i;
+    m = read();
+    i = 1;
+    while(i <= m)
+    {
+        n = fibo(i);
+        write(n);
+        i = i + 1;
     }
     return 1;
 }

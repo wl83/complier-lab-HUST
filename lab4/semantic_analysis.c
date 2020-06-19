@@ -282,12 +282,12 @@ void semantic_Analysis0(struct ASTNode *T)
     symbol_scope_TX.top = 1;
     T->offset = 0; // 外部变量在数据区的偏移量
     semantic_Analysis(T);
-    // prn_symbol();
+    prn_symbol();
     // 打印中间代码
     // printf("\n\n\n\n");
     prnIR(T->code);
     // 生成目标代码
-    // objectCode(T->code);
+    object_code(T->code);
 }
 
 

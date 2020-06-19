@@ -148,9 +148,8 @@ void boolExp(struct ASTNode *T)
                     op = JGT;
                 else if (strcmp(T->type_id, ">=") == 0)
                     op = JGE;
-                else if (strcmp(T->type_id, "==") == 0) {
+                else if (strcmp(T->type_id, "==") == 0) 
                     op = EQ;
-                } 
                 else if (strcmp(T->type_id, "!=") == 0)
                     op = NEQ;
                 T->code = genIR(op, opn1, opn2, result);
@@ -359,7 +358,7 @@ void other_assignop_exp(struct ASTNode *T) {
     int rtn, num, width;
     struct opn opn1, opn2, result;
     struct opn result2;
-    if (T->ptr[0]->kind != ID)
+    if (T->ptr[0]->kind != ID && T->ptr[0]->kind != EXP_ELE && T->ptr[0]->kind != EXP_ARRAY)
     {
         semantic_error(T->pos, "", "赋值语句需要左值");
     }
@@ -405,7 +404,7 @@ void auto_op_exp(struct ASTNode *T) {
     int rtn, num, width;
     struct opn opn1, opn2, result;
     struct opn result2;
-    if (T->ptr[0]->kind != ID){
+    if (T->ptr[0]->kind != ID && T->ptr[0]->kind != EXP_ELE && T->ptr[0]->kind != EXP_ARRAY){
         semantic_error(T->pos, "", "赋值语句需要左值");
     }
     else {
@@ -419,13 +418,20 @@ void auto_op_exp(struct ASTNode *T) {
         opn1.kind = INT;
         opn1.const_int = 1;
         result.kind = ID;
-        strcpy(result.id, newTemp());
+        rtn = fill_Temp(newTemp(), LEV, INT, 'T', T->offset);
+        strcpy(result.id, symbolTable.symbols[rtn].alias);
+        result.offset = symbolTable.symbols[rtn].offset;
         T->code = merge(2, T->code, genIR(ASSIGNOP, opn1, opn2, result));
 
         opn1.kind = ID;
         strcpy(opn1.id, symbolTable.symbols[T->ptr[0]->place].alias);
+        opn1.type = INT;
+        opn1.offset = symbolTable.symbols[T->ptr[0]->place].offset;
+
         result2.kind = ID;
-        strcpy(result2.id, newTemp());
+        rtn = fill_Temp(newTemp(), LEV, INT, 'T', T->offset+4);
+        strcpy(result2.id, symbolTable.symbols[rtn].alias);
+        result2.offset = symbolTable.symbols[rtn].offset;
         if (T->kind == AUTOPLUS_L || T->kind == AUTOPLUS_R)
             T->code = merge(2, T->code, genIR(PLUS, opn1, result, result2));
         else if(T->kind == AUTOMINUS_L || T->kind == AUTOMINUS_R)
@@ -606,9 +612,7 @@ void exp_array(struct ASTNode *T){
         T->place = rtn;       //结点保存变量在符号表中的位置
         T->code = NULL;       //标识符不需要生成TAC
         T->type = symbolTable.symbols[rtn].type; // 标记ID类型
-        // printf("%d\n", compute_width0(T->ptr[0], symbolTable.symbols[rtn].array, 0));
-        T->offset = (T->type == INT ? 4 : (T->type == FLOAT ? 8 : 1)) * compute_width0(T->ptr[0], symbolTable.symbols[rtn].array, 0); // 内存中偏移值
-        // printf("%d\n", T->offset);
+        T->offset = (T->type == INT ? 4 : (T->type == FLOAT ? 8 : 1)) * (compute_width0(T->ptr[0], symbolTable.symbols[rtn].array, 0) - 1);
         T->width = 0;   //未再使用新单元
 		while(T0->kind==ARRAY_LIST){
 			Exp(T0->ptr[0]);
@@ -670,12 +674,16 @@ void exp_ele(struct ASTNode *T)
     }
 
     T->place = rtn2;
+    int width = 0;
 
     do{
         rtn++;
         if(!strcmp(symbolTable.symbols[rtn].name, T->type_id)) {
             flag = 1;
             break;
+        }
+        else{
+            width += (symbolTable.symbols[rtn].type == INT ? 4 : (symbolTable.symbols[rtn].type == FLOAT ? 8 : 1));
         }
     } while(rtn < symbolTable.index && symbolTable.symbols[rtn].flag == 'M');
 
@@ -684,6 +692,6 @@ void exp_ele(struct ASTNode *T)
     }
     else{
         T->type = symbolTable.symbols[rtn].type;
-        T->offset = symbolTable.symbols[rtn].offset;
+        T->offset = width;
     }
 }

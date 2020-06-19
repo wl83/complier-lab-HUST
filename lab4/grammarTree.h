@@ -38,7 +38,7 @@ struct symbol {       //这里只列出了一个符号表项的部分属性，�
     int  paramnum;  //对函数适用，记录形式参数个数
     char alias[10];   //别名，为解决嵌套层次使用
     char flag;       //符号标记，函数：'F'  变量：'V'   参数：'P'  临时变量：'T'
-    char offset;      //外部变量和局部变量在其静态数据区或活动记录中的偏移量，
+    int offset;      //外部变量和局部变量在其静态数据区或活动记录中的偏移量，
     char struct_name[33];
     int array[10];
     int const_int;
@@ -200,3 +200,4 @@ struct codenode *genLabel(char *label);
 struct codenode *genGoto(char *label);
 struct codenode *merge(int num, ...);
 void prnIR(struct codenode *head);
+void object_code(struct codenode *head);

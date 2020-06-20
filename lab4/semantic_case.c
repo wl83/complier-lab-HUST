@@ -14,6 +14,8 @@ char array_name[30];
 char struct_name[33];
 
 int struct_flag = 0;
+int struct_dec_flag = 0;
+int struct_width = 0;
 int array_index = 0;
 int struct_var_flag = 0;
 
@@ -126,19 +128,24 @@ void ext_var_def(struct ASTNode *T) {
         T->type = T->ptr[1]->type = INT;
         T->ptr[1]->width = 4;
     }
-    if (!strcmp(T->ptr[0]->type_id, "float"))
+    else if (!strcmp(T->ptr[0]->type_id, "float"))
     {
         T->type = T->ptr[1]->type = FLOAT;
         T->ptr[1]->width = 8;
     }
-    if (!strcmp(T->ptr[0]->type_id, "char"))
+    else if (!strcmp(T->ptr[0]->type_id, "char"))
     {
         T->type = T->ptr[1]->type = CHAR;
         T->ptr[1]->width = 1;
     }
-    if (!strcmp(T->ptr[0]->type_id, "string"))
+    else if (!strcmp(T->ptr[0]->type_id, "string"))
     {
         T->type = T->ptr[1]->type = STRING;
+    }
+    else{
+        T->type = T->ptr[1]->type = STRUCT;
+        strcpy(struct_name, T->ptr[0]->ptr[0]->type_id);
+        struct_var_flag = 1;
     }
     T->ptr[1]->offset = T->offset; //这个外部变量的偏移量向下传递
     // T->ptr[1]->width = T->type == INT ? 4 : 8;            //将一个变量的宽度向下传递
@@ -154,15 +161,15 @@ void func_def(struct ASTNode *T)
     {
         T->ptr[1]->type = INT;
     }
-    if (!strcmp(T->ptr[0]->type_id, "float"))
+    else if (!strcmp(T->ptr[0]->type_id, "float"))
     {
         T->ptr[1]->type = FLOAT;
     }
-    if (!strcmp(T->ptr[0]->type_id, "char"))
+    else if (!strcmp(T->ptr[0]->type_id, "char"))
     {
         T->ptr[1]->type = CHAR;
     }
-    if (!strcmp(T->ptr[0]->type_id, "string"))
+    else if (!strcmp(T->ptr[0]->type_id, "string"))
     {
         T->ptr[1]->type = STRING;
     }
@@ -177,6 +184,8 @@ void func_def(struct ASTNode *T)
     semantic_Analysis(T->ptr[2]);         //处理函数体结点
     //计算活动记录大小,这里offset属性存放的是活动记录大小，不是偏移
     symbolTable.symbols[T->ptr[1]->place].offset = T->offset + T->ptr[2]->width;
+    printf("%d\n", symbolTable.symbols[T->ptr[1]->place].offset);
+    // printf("!!%d\n", T->ptr[2]->width);
     T->code = merge(3, T->ptr[1]->code, T->ptr[2]->code, genLabel(T->ptr[2]->Snext)); //函数体的代码作为函数的代码
 }
 
@@ -238,7 +247,9 @@ void struct_def(struct ASTNode *T)
 
     T->ptr[1]->offset = T->offset;
     struct_flag = 1;
+    struct_width = 0;
     semantic_Analysis(T->ptr[1]);
+    symbolTable.symbols[rtn].offset = struct_width;
     struct_flag = 0;
 }
 
@@ -311,13 +322,17 @@ void comp_stm(struct ASTNode *T)
     }
     if (T->ptr[1])
     {
+
         T->ptr[1]->offset = T->offset + T->width;
+        // printf("!%d\n", T->ptr[1]->offset);
         strcpy(T->ptr[1]->Snext, T->Snext); //S.next属性向下传递
         semantic_Analysis(T->ptr[1]);       //处理复合语句的语句序列
+        // printf("!!%d\n", T->ptr[1]->width);
         T->width += T->ptr[1]->width;
         T->code = merge(2, T->code, T->ptr[1]->code);
     }
-    // prn_symbol();                                                  //c在退出一个符合语句前显示的符号表
+    prn_symbol();                                                  //c在退出一个符合语句前显示的符号表
+    // printf("!!%d\n", T->width);
     LEV--;                                                         //出复合语句，层号减1
     symbolTable.index = symbol_scope_TX.TX[--symbol_scope_TX.top]; //删除该作用域中的符号
 }
@@ -344,6 +359,7 @@ void def_list(struct ASTNode *T)
 void var_def(struct ASTNode *T)
 {
     int rtn, num, width;
+    int flag = 0;
     struct ASTNode *T0;
     struct opn opn1, opn2, result;
     T->code = NULL;
@@ -369,6 +385,8 @@ void var_def(struct ASTNode *T)
     else{
         T->ptr[1]->type = STRUCT;
         strcpy(struct_name, T->ptr[0]->ptr[0]->type_id);
+        rtn = searchSymbolTable(T->ptr[0]->ptr[0]->type_id);
+        width = symbolTable.symbols[rtn].offset;
         struct_var_flag = 1;
     }
     T0 = T->ptr[1]; //T0为变量名列表子树根指针，对ID、ASSIGNOP类结点在登记到符号表，作为局部变量
@@ -387,10 +405,13 @@ void var_def(struct ASTNode *T)
             T0->ptr[1]->offset = T0->offset + width;
         if (T0->ptr[0]->kind == ID)
         {
-            if(!struct_flag)
-                rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV, T0->ptr[0]->type, 'V', T->offset + T->width); //此处偏移量未计算，暂时为0
+            if(!struct_flag){
+                // printf("%d\n", T0->offset + T0->width);
+                rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV, T0->ptr[0]->type, 'V', T0->offset + T0->width); //此处偏移量未计算，暂时为0
+            }
             else {
                 rtn = fillSymbolTable(T0->ptr[0]->type_id, newAlias(), LEV+1, T0->ptr[0]->type, 'M', 0); //此处偏移量未计算，暂时为0
+                struct_width += (T0->ptr[0]->type == INT ? 4 : (T0->ptr[0]->type ? 8 : 1));
             }
             if (rtn == -1)
                 semantic_error(T0->ptr[0]->pos, T0->ptr[0]->type_id, "变量重复定义");
@@ -448,16 +469,16 @@ void stm_list(struct ASTNode *T)
     if (T->ptr[1])
     { //2条以上语句连接,S.next属性向下传递
         strcpy(T->ptr[1]->Snext, T->Snext);
-        T->ptr[1]->offset = T->offset; //顺序结构共享单元方式
-                                       //                  T->ptr[1]->offset=T->offset+T->ptr[0]->width; //顺序结构顺序分配单元方式
+        T->ptr[1]->offset = T->offset + T->ptr[0]->width; //顺序结构共享单元方式
+
         semantic_Analysis(T->ptr[1]);
         //序列中第1条为表达式语句，返回语句，复合语句时，第2条前不需要标号
         if (T->ptr[0]->kind == RETURN || T->ptr[0]->kind == EXP_STMT || T->ptr[0]->kind == COMP_STM)
             T->code = merge(2, T->code, T->ptr[1]->code);
         else
             T->code = merge(3, T->code, genLabel(T->ptr[0]->Snext), T->ptr[1]->code);
-        if (T->ptr[1]->width > T->width)
-            T->width = T->ptr[1]->width; //顺序结构共享单元方式
+        // if (T->ptr[1]->width > T->width)
+            T->width += T->ptr[1]->width; //顺序结构共享单元方式
                                          //                        T->width+=T->ptr[1]->width;//顺序结构顺序分配单元方式
     }
 }
@@ -466,13 +487,13 @@ void if_then(struct ASTNode *T)
 {
     strcpy(T->ptr[0]->Etrue, newLabel()); //设置条件语句真假转移位置
     strcpy(T->ptr[0]->Efalse, T->Snext);
-    T->ptr[0]->offset = T->ptr[1]->offset = T->offset;
+    T->ptr[0]->offset = T->offset;
     boolExp(T->ptr[0]);
     T->width = T->ptr[0]->width;
     strcpy(T->ptr[1]->Snext, T->Snext);
+    T->ptr[1]->offset = T->offset + T->ptr[0]->width;
     semantic_Analysis(T->ptr[1]); //if子句
-    if (T->width < T->ptr[1]->width)
-        T->width = T->ptr[1]->width;
+    T->width += T->ptr[1]->width;
     T->code = merge(3, T->ptr[0]->code, genLabel(T->ptr[0]->Etrue), T->ptr[1]->code);
 }
 
@@ -480,17 +501,18 @@ void if_then_else(struct ASTNode *T)
 {
     strcpy(T->ptr[0]->Etrue, newLabel()); //设置条件语句真假转移位置
     strcpy(T->ptr[0]->Efalse, newLabel());
-    T->ptr[0]->offset = T->ptr[1]->offset = T->ptr[2]->offset = T->offset;
+    T->ptr[0]->offset = T->offset;
     boolExp(T->ptr[0]); //条件，要单独按短路代码处理
     T->width = T->ptr[0]->width;
+    // printf("!!%d\n", T->ptr[0]->width);
+    T->ptr[1]->offset = T->offset + T->ptr[0]->width;
     strcpy(T->ptr[1]->Snext, T->Snext);
     semantic_Analysis(T->ptr[1]); //if子句
-    if (T->width < T->ptr[1]->width)
-        T->width = T->ptr[1]->width;
+    T->width += T->ptr[1]->width;
     strcpy(T->ptr[2]->Snext, T->Snext);
+    T->ptr[2]->offset = T->offset + T->ptr[0]->width + T->ptr[1]->width;
     semantic_Analysis(T->ptr[2]); //else子句
-    if (T->width < T->ptr[2]->width)
-        T->width = T->ptr[2]->width;
+    T->width += T->ptr[2]->width;
     T->code = merge(6, T->ptr[0]->code, genLabel(T->ptr[0]->Etrue), T->ptr[1]->code,
                     genGoto(T->Snext), genLabel(T->ptr[0]->Efalse), T->ptr[2]->code);
 }
@@ -507,8 +529,7 @@ void while_dec(struct ASTNode *T)
     strcpy(break_label, T->Snext);
     strcpy(continue_label, T->ptr[1]->Snext);
     semantic_Analysis(T->ptr[1]); //循环体
-    if (T->width < T->ptr[1]->width)
-        T->width = T->ptr[1]->width;
+    T->width += T->ptr[1]->width;
     T->code = merge(5, genLabel(T->ptr[1]->Snext), T->ptr[0]->code,
                     genLabel(T->ptr[0]->Etrue), T->ptr[1]->code, 
                     genGoto(T->ptr[1]->Snext));
@@ -526,8 +547,7 @@ void for_stmt(struct ASTNode *T) {
     strcpy(T->ptr[0]->ptr[1]->Efalse, T->Snext);
     T->ptr[0]->ptr[1]->offset = T->ptr[0]->offset + T->ptr[0]->width;
     boolExp(T->ptr[0]->ptr[1]);
-    if(T->ptr[0]->width < T->ptr[0]->ptr[1]->width)
-        T->ptr[0]->width = T->ptr[0]->ptr[1]->width;
+    T->ptr[0]->width += T->ptr[0]->ptr[1]->width;
     // 循环体
     strcpy(T->ptr[1]->Snext, newLabel());
     strcpy(break_label, T->Snext);
@@ -537,9 +557,9 @@ void for_stmt(struct ASTNode *T) {
     T->ptr[0]->ptr[2]->offset = T->ptr[0]->offset + T->ptr[0]->width;
     strcpy(T->ptr[0]->ptr[2]->Snext, newLabel());
     Exp(T->ptr[0]->ptr[2]);
-    if(T->ptr[0]->width < T->ptr[0]->ptr[2]->width)
-        T->ptr[0]->width = T->ptr[0]->ptr[2]->width;
-    T->width = T->ptr[0]->width >= T->ptr[1]->width ? T->ptr[0]->width : T->ptr[1]->width;
+    T->ptr[0]->width += T->ptr[0]->ptr[2]->width;
+    // T->width = T->ptr[0]->width >= T->ptr[1]->width ? T->ptr[0]->width : T->ptr[1]->width;
+    T->width = T->ptr[0]->width + T->ptr[1]->width;
     T->code = merge(8, T->ptr[0]->ptr[0]->code, 
                     genLabel(T->ptr[0]->ptr[2]->Snext), 
                     T->ptr[0]->ptr[1]->code,
@@ -641,7 +661,6 @@ void case_stmt(struct ASTNode *T) {
     T->width = T->ptr[0]->width;
     strcpy(T->ptr[1]->Snext, T->Snext);
     semantic_Analysis(T->ptr[1]); //if子句
-    if (T->width < T->ptr[1]->width)
-        T->width = T->ptr[1]->width;
+    T->width += T->ptr[1]->width;
     T->code = merge(3, T->ptr[0]->code, genLabel(T->ptr[0]->Etrue), T->ptr[1]->code);
 }

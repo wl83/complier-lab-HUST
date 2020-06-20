@@ -1,21 +1,23 @@
 int a,b,c;
-int arr[10];
+// int arr[10][10];
+struct node{
+    int a;
+    int b;
+};
+// struct node T;
+
+int fibo(){
+    struct node T;
+    int j;
+    T.b = 4;
+    j = T.b;
+    // write(j);
+    return 0;
+}
 
 int main()
 {
-    int i, j;
-    a = 1;
-    b = 2;
-    for(i = 0; i < 10; i++) {
-        // for (j = 0; j < 10; j++) {
-            arr[i] = i * 10;
-            write(arr[i]);
-        // }
-    }
-    // for(i = 0; i < 10; i++){
-    //     for(j = 0; j < 10; j++){
-    //         write(arr[i][j]);
-    //     }
-    // }
-
+    int i;
+    fibo();
+    return 0;
 }

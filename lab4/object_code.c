@@ -16,6 +16,10 @@ void object_code(struct codenode *head) {
     fprintf(fp,".globl main\n");
     fprintf(fp,".text\n");
     fprintf(fp, "j main\n");
+    // fprintf(fp, "start:\n");
+    // fprintf(fp, "  jal main\n");
+    // fprintf(fp, "  li $v0, 10\n");
+    // fprintf(fp, "  syscall\n");
     fprintf(fp,"read:\n");
     fprintf(fp,"  li $v0,4\n");
     fprintf(fp,"  la $a0,_Prompt\n");
@@ -40,8 +44,13 @@ void object_code(struct codenode *head) {
             if(h->opn1.kind == INT) {
                 fprintf(fp, "  li $t3, %d\n", h->opn1.const_int);
             }
+            else if(h->opn1.kind == FLOAT) {
+                fprintf(fp, "  li $t3, %f\n", h->opn1.const_float);
+            }
+            else if(h->opn1.kind == CHAR) {
+                fprintf(fp, "  li $t3, %c\n", h->opn1.const_char);
+            }
             else{
-                // printf("%s: %d\n", h->opn1.id, h->opn1.offset);
                 fprintf(fp, "  lw $t1, %d($sp)\n", h->opn1.offset);
                 fprintf(fp, "  move $t3, $t1\n");
             }
@@ -121,6 +130,8 @@ void object_code(struct codenode *head) {
                 fprintf(fp, "  jr $ra\n");
             }
             else{
+                fprintf(fp, "  li $v0, 10\n");
+                fprintf(fp, "  syscall\n");
                 main_flag = 0;
             }
             

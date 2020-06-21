@@ -15,37 +15,42 @@ struct node{
 };
 
 
-int fibo(int a) // 16
+int fibo(int a)
 {
     //    TestStruct tt;
-	struct node tt; // 24
-    if (a == 1 || a == 2) // 32
-		return 1; // 36
-	else if (a >= 3){  // 40
-		tt.a = d[1][2]; // 48
-	    c = d[1][2]; // 56
-	    return fibo(a-1) + fibo(a-2); // 56+28 = 84
-	}
-    return 0; // 88
+	struct node tt;
+      if (a == 1 || a == 2){
+		  return 1;
+	  }
+						// return fibo(a - 1) + fibo(a - 2);
+	    if (a>=3)
+	    	{
+	    		tt.a = d[1][2];
+	    		c = d[1][2];
+	    		return fibo(a-1) + fibo(a-2);
+	    	}
+        return 0;
 }
 
 int main(int argc)
 {
-	int i;
+	int i, temp;
 	
-	for(i = 1; i < 10; i++)
+	for(i = 1;i<10;i++)
 	{
-		if(i > 9)
-		{
-			fibo(i);
-			break;
-		} 
-		else
-		{
-			fibo(i);
-			continue;
-		}
-		i++;
+		if(i>9)
+			{
+				temp = fibo(i);
+				write(temp);
+				break;
+			} 
+			else
+			{
+					temp = fibo(i);
+					write(temp);
+					continue;
+			}
+			i++;
 	}
 	return 1;
 }

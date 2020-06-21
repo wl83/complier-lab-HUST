@@ -26,34 +26,33 @@ fibo:
   lw $t1, 12($sp)
   lw $t2, 24($sp)
   beq $t1,$t2,label3
-  j label5
-label5:
+  j label4
+label4:
   li $t3, 2
   sw $t3, 28($sp)
   lw $t1, 12($sp)
   lw $t2, 28($sp)
   beq $t1,$t2,label3
-  j label4
+  j label2
 label3:
   li $t3, 1
   sw $t3, 32($sp)
   lw $v0,32($sp)
   jr $ra
-  j label2
-label4:
+label2:
   li $t3, 3
   sw $t3, 36($sp)
   lw $t1, 12($sp)
   lw $t2, 36($sp)
   bge $t1,$t2,label6
-  j label2
+  j label5
 label6:
-  lw $t1, 76($sp)
+  lw $t1, 76($gp)
   move $t3, $t1
   sw $t3, 16($sp)
-  lw $t1, 76($sp)
+  lw $t1, 76($gp)
   move $t3, $t1
-  sw $t3, 8($sp)
+  sw $t3, 8($gp)
   li $t3, 1
   sw $t3, 56($sp)
   lw $t1, 12($sp)
@@ -92,7 +91,7 @@ label6:
   sw $t3, 80($sp)
   lw $v0,80($sp)
   jr $ra
-label2:
+label5:
   li $t3, 0
   sw $t3, 84($sp)
   lw $v0,84($sp)
@@ -100,17 +99,17 @@ label2:
 label1:
 
 main:
-  addi $sp, $sp, -44
+  addi $sp, $sp, -56
   li $t3, 1
-  sw $t3, 20($sp)
-  lw $t1, 20($sp)
+  sw $t3, 24($sp)
+  lw $t1, 24($sp)
   move $t3, $t1
   sw $t3, 16($sp)
-label18:
+label20:
   li $t3, 10
-  sw $t3, 24($sp)
+  sw $t3, 28($sp)
   lw $t1, 16($sp)
-  lw $t2, 24($sp)
+  lw $t2, 28($sp)
   blt $t1,$t2,label11
   j label10
 label11:
@@ -131,6 +130,15 @@ label14:
   lw $ra,0($sp)
   addi $sp,$sp,88
   sw $v0,4($sp)
+  lw $t1, 4($sp)
+  move $t3, $t1
+  sw $t3, 20($sp)
+  lw $a0, 20($sp)
+  addi $sp, $sp, -4
+  sw $ra,0($sp)
+  jal write
+  lw $ra,0($sp)
+  addi $sp, $sp, 4
   j label10
   j label13
 label15:
@@ -143,32 +151,41 @@ label15:
   jal fibo
   lw $ra,0($sp)
   addi $sp,$sp,88
-  sw $v0,8($sp)
+  sw $v0,12($sp)
+  lw $t1, 12($sp)
+  move $t3, $t1
+  sw $t3, 20($sp)
+  lw $a0, 20($sp)
+  addi $sp, $sp, -4
+  sw $ra,0($sp)
+  jal write
+  lw $ra,0($sp)
+  addi $sp, $sp, 4
   j label12
 label13:
   li $t3, 1
-  sw $t3, 12($sp)
+  sw $t3, 20($sp)
   lw $t1, 16($sp)
-  lw $t2, 12($sp)
+  lw $t2, 20($sp)
   add $t3, $t1, $t2
-  sw $t3, 16($sp)
-  lw $t1, 16($sp)
+  sw $t3, 24($sp)
+  lw $t1, 24($sp)
   move $t3, $t1
   sw $t3, 16($sp)
 label12:
   li $t3, 1
-  sw $t3, 28($sp)
-  lw $t1, 16($sp)
-  lw $t2, 28($sp)
-  add $t3, $t1, $t2
   sw $t3, 32($sp)
-  lw $t1, 32($sp)
+  lw $t1, 16($sp)
+  lw $t2, 32($sp)
+  add $t3, $t1, $t2
+  sw $t3, 36($sp)
+  lw $t1, 36($sp)
   move $t3, $t1
   sw $t3, 16($sp)
-  j label18
+  j label20
 label10:
   li $t3, 1
-  sw $t3, 40($sp)
+  sw $t3, 52($sp)
   li $v0, 10
   syscall
 label9:

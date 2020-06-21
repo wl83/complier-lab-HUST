@@ -116,6 +116,8 @@ struct ASTNode * mknode(int num,int kind,int pos,...);
 void semantic_Analysis(struct ASTNode *T);
 void semantic_Analysis0(struct ASTNode *T);
 int searchSymbolTable(char *name);
+int searchSymbolTableByAlias(char *alias);
+int substr(char dst[],char src[],int start,int len);
 void semantic_error(int line,char *msg1,char *msg2);
 void prn_symbol();
 void DisplaySymbolTable();

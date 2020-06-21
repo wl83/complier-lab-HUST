@@ -3,6 +3,10 @@
 extern struct symboltable symbolTable;
 
 int main_flag = 0;
+int call_flag = 0;
+int main_call = 0;
+int LEV;
+int current_offset = 0;
 
 void object_code(struct codenode *head) {
     char opnstr1[32],opnstr2[32],resultstr[32];
@@ -51,10 +55,44 @@ void object_code(struct codenode *head) {
                 fprintf(fp, "  li $t3, %c\n", h->opn1.const_char);
             }
             else{
-                fprintf(fp, "  lw $t1, %d($sp)\n", h->opn1.offset);
-                fprintf(fp, "  move $t3, $t1\n");
+                int rtn;
+                char sub[20];
+                if(strstr(h->opn1.id, " offset ") != NULL) {
+                    substr(sub, h->opn1.id, 0, 2);
+                    rtn = searchSymbolTableByAlias(sub);
+                }
+                else
+                    rtn = searchSymbolTableByAlias(h->opn1.id);
+                // printf("%d %s %d %d\n", rtn, , symbolTable.symbols[rtn].level, LEV);
+                if(rtn != -1 && symbolTable.symbols[rtn].level == 0){
+                    fprintf(fp, "  lw $t1, %d($gp)\n", h->opn1.offset);
+                    fprintf(fp, "  move $t3, $t1\n");
+                }
+                else{
+                    fprintf(fp, "  lw $t1, %d($sp)\n", h->opn1.offset);
+                    fprintf(fp, "  move $t3, $t1\n");
+                }
             }
-            fprintf(fp, "  sw $t3, %d($sp)\n", h->result.offset);
+            int rtn;
+            char sub[20] = {'\0'};
+            if(strstr(h->result.id, " offset ") != NULL) {
+                for(int i = 0; i < strlen(h->result.id); i++){
+                    if(h->result.id[i] != ' '){
+                        sub[i] = h->result.id[i];
+                    }
+                }
+                rtn = searchSymbolTableByAlias(sub);
+            }
+            else
+                rtn = searchSymbolTableByAlias(h->result.id);
+            // fprintf(fp, "  sw $t3, %d($sp)\n", h->result.offset);
+            // printf("%s %d %d\n", h->result.id, symbolTable.symbols[rtn].level, LEV);
+            if(rtn != -1 && symbolTable.symbols[rtn].level == 0){
+                fprintf(fp, "  sw $t3, %d($gp)\n", h->result.offset);
+            }
+            else{
+                fprintf(fp, "  sw $t3, %d($sp)\n", h->result.offset);
+            }
             break;
 
         case PLUS:
@@ -84,6 +122,8 @@ void object_code(struct codenode *head) {
         case FUNCTION:
             if(!strcmp(h->result.id, "main")){
                 main_flag = 1;
+                LEV = 0;
+                main_call = 0;
             }
             fprintf(fp, "\n%s:\n", h->result.id);
             if(!strcmp(h->result.id, "main"))
@@ -134,10 +174,15 @@ void object_code(struct codenode *head) {
                 fprintf(fp, "  syscall\n");
                 main_flag = 0;
             }
-            
+            call_flag = 0;
+            // main_call--;
+            // printf("return : %d\n", main_call);
+            LEV--;
             break;
 
         case CALL:
+            call_flag = 1;
+            LEV++;
             if (!strcmp(h->opn1.id,"read")){ 
                 fprintf(fp, "  addi $sp, $sp, -4\n");
                 fprintf(fp, "  sw $ra,0($sp)\n"); 
@@ -158,8 +203,15 @@ void object_code(struct codenode *head) {
             }
             for(p = h,i = 0;i < symbolTable.symbols[h->opn1.offset].paramnum; i++)  
                 p=p->prior;
-                      
-            fprintf(fp, "  move $t0,$sp\n"); 
+
+            // printf("call: %d\n", main_call);
+            // if(main_call == 0){
+            //     fprintf(fp, "  move $t4,$sp\n");
+            // }
+            // else if(main_call > 0)
+                fprintf(fp, "  move $t0,$sp\n"); 
+            // main_call++;
+            // printf("call: %d\n", main_call);
             fprintf(fp, "  addi $sp, $sp, -%d\n", symbolTable.symbols[h->opn1.offset].offset);
             fprintf(fp, "  sw $ra,0($sp)\n"); 
             i=h->opn1.offset+1;  

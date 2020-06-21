@@ -75,6 +75,35 @@ int searchSymbolTable(char *name)
     return -1;
 }
 
+
+int substr(char dst[],char src[],int start,int len)
+{
+	char* p = src + start;   //定义指针变量指向需要提取的字符的地址
+	int n = strlen(p);       //求字符串长度
+	int i = 0;
+		if(n < len)
+		{
+			len = n;
+		}
+		while(len != 0)
+		{
+			dst[i] = src[i+start];
+			len --;
+			i++;
+		}                        //复制字符串到dst中
+		dst[i] = '\0';
+	return 0;
+}
+
+int searchSymbolTableByAlias(char *alias)
+{
+    int i;
+    for (i = symbolTable.index - 1; i >= 0; i--)
+        if (!strcmp(symbolTable.symbols[i].alias, alias))
+            return i;
+    return -1;
+}
+
 void prn_symbol()
 { //显示符号表
     int i = 0;

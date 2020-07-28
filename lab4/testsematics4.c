@@ -2,22 +2,13 @@ int a, b, c;
 float m, n;
 int d[10][10];
 
-
-// typedef struct
-// {
-// 	int a;
-// 	int b;
-// }TestStruct; // 未实现typedef
-
 struct node{
 	int a;
 	int b;
 };
 
-
 int fibo(int a)
 {
-    //    TestStruct tt;
 	struct node tt;
       if (a == 1 || a == 2){
 		  return 1;

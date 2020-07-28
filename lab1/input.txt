@@ -37,22 +37,12 @@ int main(){
     c = 0123;
     m = 1.5;
     n = 1.5E+10;
-    // 测试加减乘除模
+    // 测试算术运算
     a = b + c;
-    a = b - c;
-    m = m * n;
-    a = m / b;
-    a = b % c;
     // 测试加等、减等、乘等、除等、模等
-    a += b;
     a -= c;
-    a *= m;
-    a /= n;
-    a %= b;
     // 测试自增、自减
     a++;
-    a--;
-    ++b;
     --b;
     // 测试while循环
     while(a < 100){
@@ -70,11 +60,5 @@ int main(){
             temp.q = 0;
         if(i >= 98)
             break;
-    }
-    // 测试switch语句
-    switch(a){
-        case 1: m++;break;
-        case 2: --m;break;
-        default: break;
     }
 }
